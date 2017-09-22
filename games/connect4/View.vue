@@ -1,13 +1,13 @@
 <template>
-  <div id="Checkers">
-    <h1>This will eventually be a checkers board</h1>
+  <div class="connect-4">
+    <h1>This will eventually be a Connect 4 board</h1>
   </div>
 </template>
 <script>
 export default {};
 </script>
 <style>
-#Checkers {
+.connect-4 {
   color: red;
 }
 </style>
