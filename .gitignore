@@ -1,0 +1,17 @@
+# Vue.js .gitignore
+.DS_Store
+web/node_modules/
+web/dist/
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/test/unit/coverage
+web/test/e2e/reports
+web/selenium-debug.log
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
