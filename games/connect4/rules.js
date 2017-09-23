@@ -50,7 +50,6 @@ function winning_player(board) {
         } else {
           run_length++;
           if (run_length >= 4 && run_player !== -1) {
-            console.log("vertical at " + i + "," + j);
             return run_player;
           }
         }
@@ -64,7 +63,6 @@ function winning_player(board) {
         } else {
           slash_run_length++;
           if (slash_run_length >= 4 && slash_run_player !== -1) {
-            console.log("slash at " + i + "," + j);
             return slash_run_player;
           }
         }
@@ -76,7 +74,6 @@ function winning_player(board) {
         } else {
           backslash_run_length++;
           if (backslash_run_length >= 4 && backslash_run_player !== -1) {
-            console.log("backslash at " + i + "," + j);
             return backslash_run_player;
           }
         }
@@ -95,7 +92,6 @@ function winning_player(board) {
       } else {
         run_length++;
         if (run_length >= 4 && run_player !== -1) {
-          console.log("horizontal at " + i + "," + j);
           return run_player;
         }
       }
