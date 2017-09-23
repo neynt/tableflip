@@ -161,10 +161,9 @@ function is_action_legal(game_view, action) {
   return game_view.board[action.column][0] === -1;
 }
 
-function perform_action(game_state, action) {
+function perform_action(game_state, player, action) {
   // Verify that the action is legal.
-  if (!is_action_legal(player_view(game_state, action.player),
-                       action)) {
+  if (!is_action_legal(player_view(game_state, player), action)) {
     throw "Illegal action";
   }
 
@@ -244,6 +243,7 @@ module.exports = game = {
 
   /* Applies an action to a game state to produce a new game state.
    * @param game_state Game state.
+   * @param player ID of the player making the action.
    * @param action Object representating action.
    * @throws something if the action is not legal.
    * @returns Object representing new state of the game.

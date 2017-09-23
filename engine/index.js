@@ -74,9 +74,10 @@ gameRouter.route('/:game/is_action_legal').post(function(req, res) {
 
 gameRouter.route('/:game/perform_action').post(function(req, res) {
   var game_state = req.body['game_state'];
+  var player = req.body['player'];
   var action = req.body['action'];
   try {
-    res.send(req.rules.perform_action(game_state, action));
+    res.send(req.rules.perform_action(game_state, player, action));
   } catch (err) {
     res.status(500).send(err);
   }
