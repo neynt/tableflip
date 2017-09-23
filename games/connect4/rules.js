@@ -119,7 +119,7 @@ function initial_state(players) {
   };
 }
 
-function game_view_for_player(game_state, player) {
+function player_view(game_state, player) {
   return {
     player: player,
     board: JSON.parse(JSON.stringify(game_state.board)), // hacky but safe
@@ -134,6 +134,11 @@ function current_players(game_state) {
   } else {
     return [];
   }
+}
+
+function has_legal_action(game_view) {
+  return game_view.winner === -1 &&
+         game_view.player === game_view.current_player;
 }
 
 function is_action_legal(game_view, action) {
@@ -158,7 +163,7 @@ function is_action_legal(game_view, action) {
 
 function perform_action(game_state, action) {
   // Verify that the action is legal.
-  if (!is_action_legal(game_view_for_player(game_state, action.player),
+  if (!is_action_legal(player_view(game_state, action.player),
                        action)) {
     throw "Illegal action";
   }
@@ -214,13 +219,21 @@ module.exports = game = {
    * @param player ID of the player who is viewing the game.
    * @returns Object representating portion of game state visible to the player.
    */
-  game_view_for_player: game_view_for_player,
+  player_view: player_view,
 
   /* Gets a list of players who may make actions at the current time.
    * @param game_state Game state.
    * @returns Array of player IDs.
    */
   current_players: current_players,
+
+  /* Determines whether the current player can make any actions.
+   * Similar to current_players, but only requires a view; in general, a player
+   * may not be allowed to know which other players may currently make actions.
+   * @param game_view View of the game for the player.
+   * @returns boolean, whether or not the player may make an action.
+   */
+  has_legal_action: has_legal_action,
 
   /* Determines whether an action is currently legal.
    * @param game_view View of the game for the player making the action.
