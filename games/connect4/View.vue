@@ -4,8 +4,8 @@
     .board
       .row(v-for="row in board")
         .cell(
-          :class="{ player0: cell == 0, player1: cell == 1 }"
           v-for="cell in row"
+          :class="{ player0: cell == 0, player1: cell == 1 }"
         )
 </template>
 <script>
