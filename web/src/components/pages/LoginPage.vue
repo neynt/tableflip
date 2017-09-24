@@ -1,7 +1,5 @@
-<template>
-  <div class="main-page">
-    Log in lol
-  </div>
+<template lang='pug'>
+  .login-page Log in lol
 </template>
 <script>
 export default {};

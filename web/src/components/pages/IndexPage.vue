@@ -1,9 +1,7 @@
-<template>
-  <div class="main-page">
-    <div class="main-content">
-      <p>Hello wurld</p>
-    </div>
-  </div>
+<template lang='pug'>
+  .main-page
+    .main-content
+      p Hello wurld
 </template>
 <script>
 export default {

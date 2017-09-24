@@ -1,21 +1,19 @@
-<template>
-  <div>
-    <h1>Tableflip</h1>
-    <router-link :to="{ name: 'LoginPage' }">Sign in</router-link><br />
-    <router-link :to="{ name: 'IndexPage' }">Lobby</router-link>
-    <h2>Active games</h2>
-    <div v-for='game in active_games'>
-      <router-link :to="{ name: 'GamePage', params: { id: game.id } }">
-        {{ game.name }}
-      </router-link>
-    </div>
-    <h2>Finished games</h2>
-    <div v-for='game in finished_games'>
-      <router-link :to="{ name: 'GamePage', params: { id: game.id } }">
-        {{ game.name }}
-      </router-link>
-    </div>
-  </div>
+<template lang='pug'>
+  div
+    h1 Tableflip
+    router-link(:to="{ name: 'LoginPage' }") Sign in
+    br
+    router-link(:to="{ name: 'IndexPage' }") Lobby
+
+    h2 Active games
+    div(v-for='game in active_games')
+      router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
+        | {{ game.name }}
+
+    h2 Finished games
+    div(v-for='game in finished_games')
+      router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
+        | {{ game.name }}
 </template>
 <script>
 export default {

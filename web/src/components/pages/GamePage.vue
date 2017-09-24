@@ -1,8 +1,7 @@
-<template>
-  <div class="game-page">
-    Game id {{ this.$route.params.id }}.
-    <Connect4View />
-  </div>
+<template lang='pug'>
+  .game-page
+    | Game id {{ this.$route.params.id }}.
+    Connect4View
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';

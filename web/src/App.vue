@@ -1,12 +1,9 @@
-<template>
-  <div id="app">
-    <div class="side-bar panel">
-      <SideBar />
-    </div>
-    <div class="content panel">
-      <router-view></router-view>
-    </div>
-  </div>
+<template lang='pug'>
+  #app
+    .side-bar.panel
+      SideBar
+    .content.panel
+      router-view
 </template>
 
 <script>
