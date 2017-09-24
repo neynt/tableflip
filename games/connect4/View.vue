@@ -1,15 +1,12 @@
-<template>
-  <div class="connect-4">
-    <h1>This will eventually be a Connect 4 board</h1>
-    <div class="board">
-      <div class="row" v-for="row in board">
-        <div class="cell"
+<template lang='pug'>
+  .connect-4
+    h1 This will eventually be a Connect 4 board.
+    .board
+      .row(v-for="row in board")
+        .cell(
+          v-for="cell in row"
           :class="{ player0: cell == 0, player1: cell == 1 }"
-          v-for="cell in row">
-        </div>
-      </div>
-    </div>
-  </div>
+        )
 </template>
 <script>
 export default {

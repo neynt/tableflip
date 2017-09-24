@@ -1,9 +1,10 @@
-<template>
-  <div class="main-page">
-    <div class="main-content">
-      <p>Hello wurld</p>
-    </div>
-  </div>
+<template lang='pug'>
+  .main-page
+    .main-content
+      h1 Lobby
+      p Welcome to Tableflip — Board Game Server.
+      p (╯°□°)╯︵ ┻━┻
+      h2 There will eventually be a global list of open games here.
 </template>
 <script>
 export default {

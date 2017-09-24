@@ -1,12 +1,9 @@
-<template>
-  <div id="app">
-    <div class="side-bar panel">
-      <SideBar />
-    </div>
-    <div class="content panel">
-      <router-view></router-view>
-    </div>
-  </div>
+<template lang='pug'>
+  #app
+    .side-bar.panel
+      SideBar
+    .content.panel
+      router-view
 </template>
 
 <script>
@@ -25,13 +22,38 @@ export default {
   box-sizing: border-box;
 }
 body {
-  color: #222;
+  color: #333;
   background: #fff;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
 }
+html, body, #app {
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+  color: #999;
+}
+h2, h3, h4, h5, h6 {
+  margin-top: 0.5em;
+}
+
+/* Links */
 a {
   color: #08f;
+  text-decoration: none;
+  outline: none;
 }
+a:hover {
+  text-decoration: underline;
+}
+a:active {
+  color: #5af;
+}
+
+/* Containers */
 #app {
   display: flex;
   flex-direction: row;
@@ -45,10 +67,5 @@ a {
 }
 .panel {
   padding: 10px;
-}
-
-html, body, #app {
-  height: 100%;
-  min-height: 100%;
 }
 </style>

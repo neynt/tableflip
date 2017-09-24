@@ -2,7 +2,7 @@
  *
  * Representation of game state:
  * {
- *   board: [[int] * 6] * 7,
+ *   board: [[int] * 7] * 6,
  *   current_player: int,
  *   winner: int
  * }
@@ -29,75 +29,33 @@
  */
 
 function winning_player(board) {
-  // TODO: get rid of all the magic numbers in this function.
+  var num_rows = board.length;
+  var num_cols = board[0].length;
 
-  // Vertical and diagonal.
-  for (var i = -2; i < board.length; i++) {
-    var run_length = 0;
-    var run_player = 0;
-    var slash_run_length = 0;
-    var slash_run_player = 0;
-    var backslash_run_length = 0;
-    var backslash_run_player = 0;
-    var forward_run_player = 0;
+  function run_length(start_r, start_c, dr, dc) {
+    // Return the number of consecutive equal elements in the board, starting at
+    // (start_r, start_c) and stepping by (dr, dc).
+    var result = 0;
+    var r = start_r;
+    var c = start_c;
+    while (r >= 0 && c >= 0 && r < num_rows && c < num_cols) {
+      if (board[r][c] == board[start_r][start_c]) result += 1
+      r += dr;
+      c += dc;
+    }
+    return result;
+  }
 
-    for (var j = 0; j < 6; j++) {
-      // Vertical.
-      if (i >= 0 && i < board.length) {
-        if (board[i][j] !== run_player) {
-          run_player = board[i][j];
-          run_length = 1;
-        } else {
-          run_length++;
-          if (run_length >= 4 && run_player !== -1) {
-            return run_player;
-          }
-        }
-      }
-
-      if (i + j >= 0 && i + j < board.length) {
-        // Slash diagonal (/).
-        if (board[i + j][5 - j] !== slash_run_player) {
-          slash_run_player = board[i + j][5 - j];
-          slash_run_length = 1;
-        } else {
-          slash_run_length++;
-          if (slash_run_length >= 4 && slash_run_player !== -1) {
-            return slash_run_player;
-          }
-        }
-
-        // Backslash diagonal (\).
-        if (board[i + j][j] !== backslash_run_player) {
-          backslash_run_player = board[i + j][j];
-          backslash_run_length = 1;
-        } else {
-          backslash_run_length++;
-          if (backslash_run_length >= 4 && backslash_run_player !== -1) {
-            return backslash_run_player;
-          }
-        }
+  for (var r = 0; r < num_rows; r++) {
+    for (var c = 0; c < num_cols; c++) {
+      if (board[r][c] != -1) {
+        if (run_length(r, c, 0, 1) >= 4) return board[r][c];
+        if (run_length(r, c, 1, 0) >= 4) return board[r][c];
+        if (run_length(r, c, 1, 1) >= 4) return board[r][c];
+        if (run_length(r, c, 1, -1) >= 4) return board[r][c];
       }
     }
   }
-
-  // Horizontal.
-  for (var j = 0; j < board[0].length; j++) {
-    var run_length = 0;
-    var run_player = -1;
-    for (var i = 0; i < board.length; i++) {
-      if (board[i][j] !== run_player) {
-        run_player = board[i][j];
-        run_length = 1;
-      } else {
-        run_length++;
-        if (run_length >= 4 && run_player !== -1) {
-          return run_player;
-        }
-      }
-    }
-  }
-
   return -1;
 }
 
@@ -107,13 +65,12 @@ function initial_state(players) {
   }
 
   return {
-    board: [[-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1]],
+    board: [[-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1]],
     current_player: 0,
     winner: -1
   };
@@ -158,7 +115,7 @@ function is_action_legal(game_view, action) {
   }
 
   // The column must not be full.
-  return game_view.board[action.column][0] === -1;
+  return game_view.board[0][action.column] === -1;
 }
 
 function perform_action(game_state, player, action) {
@@ -172,16 +129,16 @@ function perform_action(game_state, player, action) {
 
   // Find last unoccupied row in the column.
   var row = 0;
-  for (var i = 0; i < game_state.board[action.column].length; i++) {
-    if (game_state.board[action.column][i] === -1) {
-      row = i;
+  for (var r = 0; r < game_state.board.length; r++) {
+    if (game_state.board[r][action.column] === -1) {
+      row = r;
     } else {
       break;
     }
   }
 
   // Place piece.
-  game_state.board[action.column][row] = action.player;
+  game_state.board[row][action.column] = action.player;
 
   // Determine if the player won. Could be optimized by only checking around
   // piece just placed.
