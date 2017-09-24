@@ -1,5 +1,10 @@
 <template lang='pug'>
-  .login-page Log in lol
+  .login-page
+    h1 Sign in
+    h5 Username
+    input(type='text' name='username')
+    h5 Password
+    input(type='password' name='password')
 </template>
 <script>
 export default {};
