@@ -1,22 +1,54 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <div class="side-bar panel">
+      <SideBar />
+    </div>
+    <div class="content panel">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
+import SideBar from '@/components/SideBar';
+
 export default {
-  name: 'app',
+  components: { SideBar },
 };
 </script>
 
 <style>
+/* Global styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+body {
+  color: #222;
+  background: #fff;
+  font-family: 'Roboto', sans-serif;
+}
+a {
+  color: #08f;
+}
 #app {
-  font-family: sans-serif;
+  display: flex;
+  flex-direction: row;
+}
+.side-bar {
+  width: 20vw;
+  max-width: 250px;
+  height: 100%;
+
+  border-right: 2px solid #aaa;
+}
+.panel {
+  padding: 10px;
+}
+
+html, body, #app {
+  height: 100%;
+  min-height: 100%;
 }
 </style>
