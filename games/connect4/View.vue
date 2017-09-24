@@ -4,7 +4,7 @@
     <div class="board">
       <div class="row" v-for="row in board">
         <div class="cell"
-          :class="{ player1: cell == 1, player2: cell == 2 }"
+          :class="{ player0: cell == 0, player1: cell == 1 }"
           v-for="cell in row">
         </div>
       </div>
@@ -16,15 +16,15 @@ export default {
   data: () => ({
     // TODO: Retrieve this data from an API
     board: [
-      [0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 2, 0, 0, 0],
-      [0, 2, 0, 1, 2, 0, 0],
-      [0, 1, 1, 2, 1, 2, 1],
+      [-1, -1, -1, -1, -1, -1, -1],
+      [-1, -1, -1, -1, -1, -1, -1],
+      [-1, -1, -1, -1, -1, -1, -1],
+      [-1, -1, -1, 1, -1, -1, -1],
+      [-1, 1, -1, 0, 1, -1, -1],
+      [-1, 0, 0, 1, 0, 1, 0],
     ],
-    current_player: 2,
-    winner: 0,
+    current_player: 1,
+    winner: -1,
   }),
 };
 </script>
@@ -51,10 +51,10 @@ export default {
   border: 2px solid rgba(45, 90, 135, 0.8);
   margin: 0px 5px;
 }
-.player1 {
+.player0 {
   background: #f46 !important;
 }
-.player2 {
+.player1 {
   background: #ee3 !important;
 }
 </style>
