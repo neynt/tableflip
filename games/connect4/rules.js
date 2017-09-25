@@ -6,8 +6,8 @@
  *   current_player: int,
  *   winner: int
  * }
- * The board is a list of columns from top to bottom, and each cell in the board
- * is the player who played there, or -1 if the cell is empty.
+ * The board is a list of rows of cells, and each cell in the board is the
+ * player who played there, or -1 if the cell is empty.
  * The winner is the player who has won the game, or -1 if game is in progress.
  * Winner is cached in the state because checking for a winner is expensive
  * and knowing whether the game is over is required for move legality checks
@@ -215,7 +215,7 @@ module.exports = game = {
 
   /* Gets a list of winning players.
    * @param game_state Game state.
-   * @returns Arry of player IDs. Empty if no player has won yet.
+   * @returns Array of player IDs. Empty if no player has won yet.
    */
   winners: winners
 };
