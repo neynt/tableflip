@@ -25,6 +25,9 @@ export default {
       const that = this;
       api.get(`games/${this.gameId}`).then((data) => {
         that.gameState = data.state;
+      }).catch((err) => {
+        console.log(err);
+        that.gameState = null;
       });
     },
   },
