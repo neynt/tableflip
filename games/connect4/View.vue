@@ -1,6 +1,6 @@
 <template lang='pug'>
   .connect-4
-    .board(v-if="state")
+    .board
       .row(v-for="row in state.board")
         .cell(
           v-for="cell in row"

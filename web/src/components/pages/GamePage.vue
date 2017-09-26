@@ -1,6 +1,6 @@
 <template lang='pug'>
   .game-page
-    component(:is="gameView" :state="gameState")
+    component(v-if="gameState" :is="gameView" :state="gameState")
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';
