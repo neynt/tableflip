@@ -21,6 +21,18 @@ def get_user(user_id):
   except:
     abort(404)
 
+@app.route(api_endpoint + 'games', methods=['GET'])
+def get_games():
+  return jsonify({'Yes, my man': 69})
+
+@app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
+def get_game(game_id):
+  try:
+    game = database.get_game(get_db(), game_id)
+    return jsonify(database.game_view(game))
+  except:
+    abort(404)
+
 @app.route('/')
 def hello_world():
   return 'Hello, World!'

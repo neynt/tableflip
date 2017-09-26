@@ -1,7 +1,6 @@
 <template lang='pug'>
   .game-page
-    | Game id {{ this.$route.params.id }}.
-    component(:is="game_view")
+    component(:is="gameView" :state="gameState")
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';
@@ -9,7 +8,25 @@ import api from '@/api';
 
 export default {
   computed: {
-    game_view: () => Connect4View,
+    gameId() { return this.$route.params.id; },
+    gameView() { return Connect4View; },
+  },
+  created() {
+    this.fetch_data();
+  },
+  watch: {
+    $route: 'fetch_data',
+  },
+  data: () => ({
+    gameState: null,
+  }),
+  methods: {
+    fetch_data() {
+      const that = this;
+      api.get(`games/${this.gameId}`).then((data) => {
+        that.gameState = data.state;
+      });
+    },
   },
 };
 </script>

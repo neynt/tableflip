@@ -1,8 +1,7 @@
 <template lang='pug'>
   .connect-4
-    h1 This will eventually be a Connect 4 board.
-    .board
-      .row(v-for="row in board")
+    .board(v-if="state")
+      .row(v-for="row in state.board")
         .cell(
           v-for="cell in row"
           :class="{ player0: cell == 0, player1: cell == 1 }"
@@ -10,19 +9,7 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    // TODO: Retrieve this data from an API
-    board: [
-      [-1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, 1, -1, -1, -1],
-      [-1, 1, -1, 0, 1, -1, -1],
-      [-1, 0, 0, 1, 0, 1, 0],
-    ],
-    current_player: 1,
-    winner: -1,
-  }),
+  props: ['state'],
 };
 </script>
 <style scoped>
