@@ -5,6 +5,7 @@
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';
+import api from '@/api';
 
 export default {
   computed: {
