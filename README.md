@@ -9,9 +9,14 @@ play board games with me
 - `games/`: Game modules
 - `api/`: REST API
 
-## Setup
+## Flask and DB Setup
 
-- Install all required packages:
-    `pip install -r requirements.txt`
-- Run `export FLASK_APP=api/__init__.py`
-- Flask server now can be run via flask run
+```
+pip install -r requirements.txt
+export FLASK_APP=api/__init__.py
+sql/create_db.sh
+psql tableflip -a -f sql/create_tables.sql
+psql tableflip -a -f sql/sample_data.sql
+```
+
+Flask server now can be run with `flask run`
