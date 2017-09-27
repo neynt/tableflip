@@ -4,6 +4,10 @@ var app = express();
 
 var gameRouter = express.Router();
 
+function error(res, err) {
+  res.status(500).send({'error': err});
+}
+
 // Loads game rules into req.rules. Calls to require are cached and
 // rules modules are self-contained, so this should be pretty fast.
 gameRouter.use('/:game', function getGameRules(req, res, next) {
@@ -21,7 +25,7 @@ gameRouter.route('/:game').get(function (req, res) {
   if (req.rules !== undefined) {
     res.send('ok');
   } else {
-    res.status(500).send('game not found');
+    error(res, 'game not found');
   }
 });
 
@@ -30,7 +34,7 @@ gameRouter.route('/:game/initial_state').post(function(req, res) {
   try {
     res.send(req.rules.initial_state(players));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -40,7 +44,7 @@ gameRouter.route('/:game/player_view').post(function(req, res) {
   try {
     res.send(req.rules.player_view(game_state, player));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -49,7 +53,7 @@ gameRouter.route('/:game/current_players').post(function(req, res) {
   try {
     res.send(req.rules.current_players(game_state));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -58,7 +62,7 @@ gameRouter.route('/:game/has_legal_action').post(function(req, res) {
   try {
     res.send(req.rules.has_legal_action(game_view));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -68,7 +72,7 @@ gameRouter.route('/:game/is_action_legal').post(function(req, res) {
   try {
     res.send(req.rules.is_action_legal(game_view, action));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -79,7 +83,7 @@ gameRouter.route('/:game/perform_action').post(function(req, res) {
   try {
     res.send(req.rules.perform_action(game_state, player, action));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
@@ -88,7 +92,7 @@ gameRouter.route('/:game/is_game_finished').post(function(req, res) {
   try {
     res.send(req.rules.is_game_finished(game_state));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, error);
   }
 });
 
@@ -97,7 +101,7 @@ gameRouter.route('/:game/winners').post(function(req, res) {
   try {
     res.send(req.rules.winners(game_state));
   } catch (err) {
-    res.status(500).send(err);
+    error(res, err);
   }
 });
 
