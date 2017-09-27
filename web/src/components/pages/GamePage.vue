@@ -1,6 +1,8 @@
 <template lang='pug'>
   .game-page
     component(v-if="gameState" :is="gameView" :state="gameState")
+    div(v-if="gameState === null")
+      h2 Game not found. (╯°□°)╯︵ ┻━┻
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';
@@ -18,16 +20,15 @@ export default {
     $route: 'fetch_data',
   },
   data: () => ({
-    gameState: null,
+    gameState: undefined,
   }),
   methods: {
     fetch_data() {
-      const that = this;
       api.get(`games/${this.gameId}`).then((data) => {
-        that.gameState = data.state;
+        this.gameState = data.state;
       }).catch((err) => {
         console.log(err);
-        that.gameState = null;
+        this.gameState = null;
       });
     },
   },

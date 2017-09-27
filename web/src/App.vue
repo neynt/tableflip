@@ -59,11 +59,13 @@ a:active {
   flex-direction: row;
 }
 .side-bar {
-  width: 20vw;
-  max-width: 250px;
+  width: 200px;
+  min-width: 200px;
   height: 100%;
-
   border-right: 2px solid #aaa;
+}
+.content {
+  flex-grow: 1;
 }
 .panel {
   padding: 10px;
