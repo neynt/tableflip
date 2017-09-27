@@ -10,18 +10,34 @@ play board games with me
 - `sql/`: Database schema and sample data
 - `web/`: Vue.js web frontend
 
-## Flask and DB Setup
+## Development setup
 
-Install PostgreSQL if you have not:
-brew/apt-get install postgresql
+### Frontend (`web/`)
 
-```shell
-To start up flask app and install all requirements along with setting up
-postgres
-Run `./start.sh`
+```bash
+cd web
+npm install
+npm run dev
 ```
 
-```Database
+This will build the front-end with a bunch of cool development features like hot reloading, and it will open it in your browser.
+
+### Flask and DB Setup
+
+Install PostgreSQL if you have not:
+
+```shell
+brew/apt-get install postgresql
+```
+
+To start up flask app and install all requirements along with setting up:
+
+```shell
+postgres
+./start.sh
+```
+
+```shell
 To create new database instance:
 `python3 create_db.py`
 To migrate database:
