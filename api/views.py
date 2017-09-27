@@ -1,5 +1,5 @@
-from flask import abort, jsonify, g
-from api import app, database
+from flask import abort, jsonify, g, request
+from api import app, database, engine
 
 version = 1.0
 api_endpoint = '/tableflip/api/v{}/'.format(version)
@@ -33,6 +33,23 @@ def get_game(game_id):
     return jsonify(database.game_view(game))
   except:
     abort(404)
+
+@app.route(api_endpoint + 'games/<int:game_id>/action', methods=['POST'])
+def perform_action(game_id):
+  try:
+    game = database.get_game(get_db(), game_id)
+  except:
+    abort(404)
+
+  try:
+    data = request.get_json()
+    new_state = engine.perform_action('connect4', game.state, data['player'], data['action'])
+    # don't actually update state, just return new state
+    return jsonify(new_state)
+  except Exception as e:
+    response = jsonify({'error': e.args[0]})
+    response.status_code = 500
+    return response
 
 @app.route('/')
 def hello_world():
