@@ -13,15 +13,13 @@ export default {
 };
 </script>
 <style scoped>
-.connect-4 {
-  color: red;
-}
 .board {
   display: inline-block;
   background: #5af;
   padding: 10px;
   border-radius: 15px;
   border: 2px solid rgba(45, 90, 135, 0.8);
+  white-space: nowrap;
 }
 .row {
   display: block;
