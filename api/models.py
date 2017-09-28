@@ -1,4 +1,4 @@
-from flask.ext.admin.contrib import sqla
+from flask_admin.contrib import sqla
 from wtforms.fields import PasswordField
 
 from api import db, roles_users
@@ -20,8 +20,18 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
-    confirmed_at = db.Column(db.DateTime())
-    roles = db.relationship('Role',secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    #confirmed_at = db.Column(db.DateTime())
+    #roles = db.relationship('Role',secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+
+    def __repr__(self):
+        return '<User %r>' % (self.email)
+
+class Lobby(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(255))
 
 class UserAdmin(sqla.ModelView):
     # exclude password from list of users

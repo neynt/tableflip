@@ -2,17 +2,16 @@ import os
 
 from flask import Flask, jsonify
 from flask_cors import CORS
-from flask.ext.admin import Admin
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_admin import Admin
+from flask_sqlalchemy import SQLAlchemy
 from flask_security import SQLAlchemyUserDatastore, Security
 
 app_name = 'tableflip'
 app = Flask(app_name)
 
-from api import views
-
+# NOTE: Expect to setup all these things before you can import views/models
 # config value for database
-#app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
+app.config.from_object('config')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # config value for Flask-Security by using PBKDF2 with salt
@@ -27,10 +26,11 @@ roles_users = db.Table(
     db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
 )
 
-from api import models
+from api import models, views
 
 user_datastore = SQLAlchemyUserDatastore(db, models.User, models.Role)
 security = Security(app, user_datastore)
+
 # Initialize Flask-Admin
 admin = Admin(app)
 
