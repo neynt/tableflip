@@ -22,13 +22,25 @@ export default {
   box-sizing: border-box;
 }
 body {
-  color: #333;
   background: #fff;
-  font-family: 'Roboto Condensed', sans-serif;
 }
 html, body, #app {
   height: 100%;
   min-height: 100%;
+}
+
+/* Input */
+body, input, textarea, button {
+  color: #333;
+  font: 16px 'Roboto Condensed', sans-serif;
+}
+input, textarea, button {
+  border: 2px solid #999;
+  padding: 5px 8px;
+  margin: 3px 0;
+}
+button {
+  background: #eee;
 }
 
 /* Headers */
