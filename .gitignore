@@ -31,3 +31,6 @@ venv.bak/
 
 # Python
 *.pyc
+
+# Database
+db/
