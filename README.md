@@ -12,6 +12,9 @@ play board games with me
 
 ## Flask and DB Setup
 
+Install PostgreSQL if you have not:
+brew/apt-get install postgresql
+
 ```shell
 pip install -r requirements.txt
 export FLASK_APP=api/__init__.py

@@ -1,7 +1,8 @@
-from api import app, database
 from flask import abort, jsonify, g
+from api import app, database
 
-api_endpoint = '/tableflip/api/v1.0/'
+version = 1.0
+api_endpoint = '/tableflip/api/v{}/'.format(version)
 
 def get_db():
   if not hasattr(g, 'postgres_db'):
