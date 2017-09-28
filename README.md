@@ -16,11 +16,18 @@ Install PostgreSQL if you have not:
 brew/apt-get install postgresql
 
 ```shell
-pip install -r requirements.txt
-export FLASK_APP=api/__init__.py
-sql/create_db.sh
-psql tableflip -a -f sql/create_tables.sql
-psql tableflip -a -f sql/sample_data.sql
+To start up flask app and install all requirements along with setting up
+postgres
+Run `./start.sh`
 ```
 
-Flask server now can be run with `flask run`
+```Database
+To create new database instance:
+`python3 create_db.py`
+To migrate database:
+`python3 migrate_db.py`
+To upgrade database version:
+`python3 downgrade_db.py`
+To downgrade database version:
+`python3 downgrade_db.py`
+```

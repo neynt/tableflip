@@ -3,6 +3,7 @@ APP=api/__init__.py
 PG_LOG=postgres.log
 DB_URL=postgresql://localhost/tableflip
 
+pip install -r requirements.txt
 if pg_ctl status -D "$PG_DIR" ; then
     echo "[postgres already running]"
 else
