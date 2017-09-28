@@ -8,6 +8,15 @@ function error(res, err) {
   res.status(500).send({'error': err});
 }
 
+function game_info(rules, game_state) {
+  return {
+    'game_state': game_state,
+    'current_players': rules.current_players(game_state),
+    'finished': rules.is_game_finished(game_state),
+    'winners': rules.winners(game_state)
+  }
+}
+
 // Loads game rules into req.rules. Calls to require are cached and
 // rules modules are self-contained, so this should be pretty fast.
 gameRouter.use('/:game', function getGameRules(req, res, next) {
@@ -32,7 +41,7 @@ gameRouter.route('/:game').get(function (req, res) {
 gameRouter.route('/:game/initial_state').post(function(req, res) {
   var players = req.body['players'];
   try {
-    res.send(req.rules.initial_state(players));
+    res.send(game_info(req.rules, req.rules.initial_state(players)));
   } catch (err) {
     error(res, err);
   }
@@ -81,7 +90,8 @@ gameRouter.route('/:game/perform_action').post(function(req, res) {
   var player = req.body['player'];
   var action = req.body['action'];
   try {
-    res.send(req.rules.perform_action(game_state, player, action));
+    var new_state = req.rules.perform_action(game_state, player, action);
+    res.send(game_info(req.rules, new_state));
   } catch (err) {
     error(res, err);
   }
@@ -100,6 +110,15 @@ gameRouter.route('/:game/winners').post(function(req, res) {
   var game_state = req.body['game_state'];
   try {
     res.send(req.rules.winners(game_state));
+  } catch (err) {
+    error(res, err);
+  }
+});
+
+gameRouter.route('/:game/info').post(function(req, res) {
+  var game_state = req.body['game_state'];
+  try {
+    res.send(game_info(game_state));
   } catch (err) {
     error(res, err);
   }
