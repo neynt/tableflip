@@ -51,9 +51,9 @@ def perform_action(game_id):
 
   try:
     data = request.get_json()
-    new_state = engine.perform_action('connect4', game.state, data['player'], data['action'])
-    # don't actually update state, just return new state
-    return jsonify(new_state)
+    result = engine.perform_action('connect4', game.state, data['player'], data['action'])
+    # don't actually update state, just return result
+    return jsonify(result)
   except Exception as e:
     response = jsonify({'error': e.args[0]})
     response.status_code = 500

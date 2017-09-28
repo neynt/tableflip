@@ -39,3 +39,7 @@ def is_game_finished(game, game_state):
 def winners(game, game_state):
   return engine_query(game, 'winners',
       {'game_state': game_state})
+
+def info(game, game_state):
+  return engine_query(game, 'info',
+      {'game_state': game_state})
