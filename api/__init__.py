@@ -19,21 +19,5 @@ app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
 CORS(app)
 
 db = SQLAlchemy(app)
-roles_users = db.Table(
-        'roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
-        )
 
 from api import models, views
-
-user_datastore = SQLAlchemyUserDatastore(db, models.User, models.Role)
-security = Security(app, user_datastore)
-
-# Initialize Flask-Admin
-admin = Admin(app)
-
-# Add Flask-Admin views for Users and Roles
-admin.add_view(models.UserAdmin(models.User, db.session))
-admin.add_view(models.RoleAdmin(models.Role, db.session))
-

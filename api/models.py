@@ -1,19 +1,7 @@
 from flask_admin.contrib import sqla
 from wtforms.fields import PasswordField
 
-from api import db, roles_users
-
-class Role(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
-
-    # required fields for Flask-Admin
-    def __str__(self):
-        return self.name
-
-    def hash(self):
-        return hash(self.name)
+from api import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,7 +9,6 @@ class User(db.Model):
     password = db.Column(db.String(255))
     #active = db.Column(db.Boolean())
     #confirmed_at = db.Column(db.DateTime())
-    #roles = db.relationship('Role',secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
     def __repr__(self):
         return '<User %r>' % (self.email)
