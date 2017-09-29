@@ -24,10 +24,10 @@ export default {
   }),
   methods: {
     fetch_data() {
+      this.gameState = undefined;
       api.get(`games/${this.gameId}`).then((data) => {
         this.gameState = data.state;
-      }).catch((err) => {
-        console.log(err);
+      }).catch(() => {
         this.gameState = null;
       });
     },
