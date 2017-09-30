@@ -26,7 +26,7 @@ export default {
     fetch_data() {
       this.gameState = undefined;
       api.get(`games/${this.gameId}`).then((data) => {
-        this.gameState = data.state;
+        this.gameState = data.view;
       }).catch(() => {
         this.gameState = null;
       });

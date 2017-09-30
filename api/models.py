@@ -75,7 +75,7 @@ def sample_data():
     'winner': -1})
   db.session.add(game)
 
-  usergame = UserGame(player_id=0, user=user, game=game)
+  usergame = UserGame(player_id=0, user=user, game=game, current_turn=True)
   # Alternate method #1 of adding relation:
   # usergame = UserGame(player_id=0, user=user)
   # game.users.append(usergame)

@@ -172,7 +172,7 @@ module.exports = game = {
 
   /* Gets a view of the game state for given player.
    * @param game_state Game state.
-   * @param player ID of the player who is viewing the game.
+   * @param player ID of the player who is viewing the game, or -1 for observer.
    * @returns Object representating portion of game state visible to the player.
    */
   player_view: player_view,

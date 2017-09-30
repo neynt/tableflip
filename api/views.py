@@ -20,15 +20,21 @@ def lobby_view(lobby):
     "players": [lobbygame.user.id for lobbygame in lobby.users]
   }
 
-def game_view(game, include_state=True):
+def game_view(game, include_view=False, player_id=-1):
   obj = {
     "id": game.id,
     "type": game.gametype.code,
     "finished": game.finished,
-    "players": [usergame.user.id for usergame in game.users]
+    "players": [usergame.user.id for usergame in game.users],
+    "winners": [usergame.user.id for usergame in game.users if usergame.winner]
   }
-  if include_state:
-    obj["state"] = game.state
+  if include_view:
+    obj["view"] = engine.player_view(game.gametype.code, game.state, player_id)
+  return obj
+
+def usergame_view(usergame):
+  obj = game_view(usergame.game)
+  obj["current_turn"] = usergame.current_turn
   return obj
 
 @app.route(api_endpoint + 'users', methods=['GET'])
@@ -41,6 +47,15 @@ def get_user(user_id):
   try:
     user = models.User.query.get(user_id)
     return jsonify(user_view(user))
+  except:
+    abort(404)
+
+@app.route(api_endpoint + 'users/<int:user_id>/games', methods=['GET'])
+def get_user_games(user_id):
+  try:
+    user = models.User.query.get(user_id)
+    usergames = user.games
+    return jsonify([usergame_view(usergame) for usergame in usergames])
   except:
     abort(404)
 
@@ -60,13 +75,17 @@ def get_lobby(lobby_id):
 @app.route(api_endpoint + 'games', methods=['GET'])
 def get_games():
   games = models.Game.query.all()
-  return jsonify([game_view(game, include_state=False) for game in games])
+  return jsonify([game_view(game) for game in games])
 
 @app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
 def get_game(game_id):
+  user_id = request.args.get('user_id', 1) # mock user id, TODO fix when login done
   try:
     game = models.Game.query.get(game_id)
-    return jsonify(game_view(game))
+    usergame = models.UserGame.query.filter_by(game_id=game.id,
+                                               user_id=user_id).first()
+    player_id = usergame.player_id if usergame else -1
+    return jsonify(game_view(game, include_view=True, player_id=player_id))
   except:
     abort(404)
 
