@@ -86,7 +86,8 @@ def get_game(game_id):
                                                user_id=user_id).first()
     player_id = usergame.player_id if usergame else -1
     return jsonify(game_view(game, include_view=True, player_id=player_id))
-  except:
+  except Exception as e:
+    print(e)
     abort(404)
 
 @app.route(api_endpoint + 'games/<int:game_id>/action', methods=['POST'])
