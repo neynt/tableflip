@@ -2,17 +2,35 @@
   .connect-4
     .board
       .col(
-        v-for="(_, c) in state.board[0]"
-        @click="click(c)"
+        v-for='(_, c) in state.board[0]'
+        @click='click(c)'
       )
-      .row(v-for="row in state.board")
+      .row(v-for='row in state.board')
         .cell(
-          v-for="(cell, c) in row"
-          :class="{ \
+          v-for='(cell, c) in row'
+          :class='{ \
             player0: cell === 0, \
             player1: cell === 1, \
-          }"
+          }'
         )
+    .cur_player(v-if='state.winner == -1')
+      | Current player is
+      br
+      .cell(
+        :class='{ \
+          player0: state.current_player === 0, \
+          player1: state.current_player === 1, \
+        }'
+      )
+    .winner(v-if='state.winner != -1')
+      | Winner is
+      br
+      .cell(
+        :class='{ \
+          player0: state.winner === 0, \
+          player1: state.winner === 1, \
+        }'
+      )
 </template>
 <script>
 export default {

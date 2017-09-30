@@ -40,6 +40,7 @@ function winning_player(board) {
     var c = start_c;
     while (r >= 0 && c >= 0 && r < num_rows && c < num_cols) {
       if (board[r][c] == board[start_r][start_c]) result += 1
+      else break;
       r += dr;
       c += dc;
     }

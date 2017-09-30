@@ -87,7 +87,7 @@ def get_game(game_id):
     player_id = usergame.player_id if usergame else -1
     return jsonify(game_view(game, include_view=True, player_id=player_id))
   except Exception as e:
-    print(e)
+    print("Exception in get_game: {}".format(e))
     abort(404)
 
 @app.route(api_endpoint + 'games/<int:game_id>/action', methods=['POST'])
@@ -100,9 +100,13 @@ def perform_action(game_id):
   try:
     data = request.get_json()
     result = engine.perform_action('connect4', game.state, data['player'], data['action'])
+    game.state = result['game_state']
+    models.db.session.add(game)
+    models.db.session.commit()
     # don't actually update state, just return result
     return jsonify(result)
   except Exception as e:
+    print("Exception in perform_action: {}".format(e))
     response = jsonify({'error': e.args[0]})
     response.status_code = 500
     return response
