@@ -32,7 +32,8 @@ def get_user(user_id):
 
 @app.route(api_endpoint + 'games', methods=['GET'])
 def get_games():
-  return jsonify({'Yes, my man': 69})
+  games = models.Game.query.all()
+  return jsonify(list(map(game_view, games)))
 
 @app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
 def get_game(game_id):

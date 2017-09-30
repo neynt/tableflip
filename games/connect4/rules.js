@@ -110,7 +110,7 @@ function is_action_legal(game_view, action) {
   }
 
   // The column must be valid.
-  if (action.column < 0 || action.column >= game_view.board.length) {
+  if (action.column < 0 || action.column >= game_view.board[0].length) {
     return false;
   }
 

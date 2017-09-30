@@ -1,53 +1,45 @@
-from flask_admin.contrib import sqla
-from wtforms.fields import PasswordField
-
 from api import db
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(255))
-    #active = db.Column(db.Boolean())
-    #confirmed_at = db.Column(db.DateTime())
 
-    def __repr__(self):
-        return '<User %r>' % (self.email)
+class UserLobby(db.Model):
+  __tablename__ = 'user_lobby'
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+  lobby_id = db.Column(db.Integer, db.ForeignKey('lobby.id'), primary_key=True)
+  user = db.relationship('User', back_populates='lobbies')
+  lobby = db.relationship('Lobby', back_populates='users')
+
+class UserGame(db.Model):
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+  game_id = db.Column(db.Integer, db.ForeignKey('game.id'), primary_key=True)
+  player_id = db.Column(db.Integer)
+  user = db.relationship('User', back_populates='games')
+  game = db.relationship('Game', back_populates='users')
+
+class User(db.Model):
+  __tablename__ = 'users' # user is reserved in PostgreSQL
+  id = db.Column(db.Integer, primary_key=True)
+  username = db.Column(db.String(255), unique=True)
+  password = db.Column(db.String(255))
+  lobbies = db.relationship('UserLobby', back_populates='user')
+  games = db.relationship('UserGame', back_populates='user')
+
+  def __repr__(self):
+    return '<User %r>' % (self.username)
 
 class Lobby(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+  __tablename__ = 'lobby'
+  id = db.Column(db.Integer, primary_key=True)
+  users = db.relationship('UserLobby', back_populates='lobby')
 
 class Game(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    state = db.Column(db.String(255))
+  __tablename__ = 'game'
+  id = db.Column(db.Integer, primary_key=True)
+  state = db.Column(db.JSON())
+  users = db.relationship('UserGame', back_populates='game')
 
-class UserAdmin(sqla.ModelView):
-    # exclude password from list of users
-    column_exclude_list = list = ('password',)
+def init_db():
+  db.drop_all()
+  db.create_all()
 
-    form_excluded_columns = ('password',)
-    # Automatically display human-readable names for the current and available
-    # Roles when creating or editing a User
-    column_auto_select_related = True
-
-    # Prevent administration of Users unless the currently logged-in user has the "admin" role
-    def is_accessible(self):
-        return current_user.has_role('admin')
-
-    # Don't display password that is as same as model's password field because
-    # we want to store encrypted password not what users entered
-    def scaffold_form(self):
-        form_class = super(UserAdmin, self).scaffold_form()
-
-        # Add a password field, naming it "password2" and labeling it "New Password".
-        form_class.password2 = PasswordField('New Password')
-        return form_class
-
-    def on_model_change(self, form, model, is_created):
-        # if password field isn't blank, encrypt it and save it, else old
-        # password remains
-        if len(model.password2):
-            model.password = utils.encrypt_password(model.password2)
-
-class RoleAdmin(sqla.ModelView):
-    def is_accessible(self):
-        return current_user.has_role('admin')
+def ensure_db_exists():
+  db.create_all()
