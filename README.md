@@ -4,46 +4,72 @@ play board games with me
 
 ## Overview of top level directories
 
-- `api/`: REST API
-- `engine/`: Node.js server-side game logic engine
-- `games/`: Game modules
-- `sql/`: Database schema and sample data
-- `web/`: Vue.js web frontend
+- `web/`: Vue.js web frontend. Talks with `api/`.
+- `api/`: Python/Flask REST API. Talks with `engine/`.
+- `engine/`: Node.js server-side game logic engine.
+- `games/`: Game modules.
 
-## Development setup
+## How to run everything
 
-### Frontend (`web/`)
+Install OS dependencies: Python 3 and Node.js.
+
+Create `.env` as appropriate.
+
+Install npm/pip dependencies:
 
 ```bash
-cd web
-npm install
-npm run dev
+./setup.sh
 ```
 
-This will build the front-end with a bunch of cool development features like hot reloading, and it will open it in your browser.
+Finally, run everything using `./start.sh`:
 
-### Flask and DB Setup
+```
+./start.sh engine
+./start.sh api
+./start.sh web
+```
+
+### Using local PostgreSQL
+
+For development without internet access, it can be useful to have `api/` talk
+to a local PostgreSQL instance.
 
 Install PostgreSQL if you have not:
 
-```shell
-brew/apt-get install postgresql
+```
+# Mac:
+brew install postgresql
+# Ubuntu:
+apt install postgresql
+systemctl enable postgresql
+systemctl start postgresql
 ```
 
-To start up flask app and install all requirements along with setting up:
+Set up the database as follows:
 
-```shell
-postgres
-./start.sh
+```
+sudo su postgres
+psql
+create database tableflip;
+create user ${YOUR_USERNAME};
+
+# (Possibly optional)
+grant all privileges on database tableflip to ${YOUR_USERNAME};
 ```
 
-```shell
-To create new database instance:
-`python3 create_db.py`
-To migrate database:
-`python3 migrate_db.py`
-To upgrade database version:
-`python3 downgrade_db.py`
-To downgrade database version:
-`python3 downgrade_db.py`
+Create the tables and populate them with sample data:
+
 ```
+./start.sh shell
+from api import models
+models.init_db()
+models.sample_data()
+```
+
+Replace the `DATABASE_URL` in `.env`:
+
+```
+DATABASE_URL="postgresql://localhost/tableflip"
+```
+
+`./start.sh api` should now talk to the local Postgres.
