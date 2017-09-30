@@ -11,11 +11,25 @@ def user_view(user):
     "username": user.username,
   }
 
-def game_view(game):
+def lobby_view(lobby):
   return {
-    "id": game.id,
-    "state": game.state,
+    "id": lobby.id,
+    "type": lobby.gametype.code,
+    "min_players": lobby.gametype.max_players,
+    "max_players": lobby.gametype.max_players,
+    "players": [lobbygame.user.id for lobbygame in lobby.users]
   }
+
+def game_view(game, include_state=True):
+  obj = {
+    "id": game.id,
+    "type": game.gametype.code,
+    "finished": game.finished,
+    "players": [usergame.user.id for usergame in game.users]
+  }
+  if include_state:
+    obj["state"] = game.state
+  return obj
 
 @app.route(api_endpoint + 'users', methods=['GET'])
 def get_users():
@@ -30,10 +44,23 @@ def get_user(user_id):
   except:
     abort(404)
 
+@app.route(api_endpoint + 'lobbies', methods=['GET'])
+def get_lobbies():
+  lobbies = models.Lobby.query.all()
+  return jsonify([lobby_view(lobby) for lobby in lobbies])
+
+@app.route(api_endpoint + 'lobbies/<int:lobby_id>', methods=['GET'])
+def get_lobby(lobby_id):
+  try:
+    lobby = models.Lobby.query.get(lobby_id)
+    return jsonify(lobby_view(lobby))
+  except:
+    abort(404)
+
 @app.route(api_endpoint + 'games', methods=['GET'])
 def get_games():
   games = models.Game.query.all()
-  return jsonify(list(map(game_view, games)))
+  return jsonify([game_view(game, include_state=False) for game in games])
 
 @app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
 def get_game(game_id):
