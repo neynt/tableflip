@@ -37,10 +37,9 @@ export default {
     },
     onAction(action) {
       api.post(`games/${this.gameId}/action`, {
-        player: this.gameState.current_player,
         action,
-      }).then((response) => {
-        this.gameState = response.game_state;
+      }).then((data) => {
+        this.gameState = data.view;
       });
     },
   },

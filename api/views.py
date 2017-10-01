@@ -1,6 +1,6 @@
 from flask import abort, jsonify, g, request, session
 
-from api import app, engine, models
+from api import app, engine, models, db
 
 version = 1.0
 api_endpoint = '/tableflip/api/v{}/'.format(version)
@@ -109,32 +109,45 @@ def get_games():
 
 @app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
 def get_game(game_id):
-  user_id = request.args.get('user_id', 1) # mock user id, TODO fix when login done
+  user_id = g.user.id if g.user else -1
   try:
     game = models.Game.query.get(game_id)
     usergame = models.UserGame.query.filter_by(game_id=game.id,
                                                user_id=user_id).first()
     player_id = usergame.player_id if usergame else -1
     return jsonify(game_view(game, include_view=True, player_id=player_id))
+
   except Exception as e:
     print("Exception in get_game: {}".format(e))
     abort(404)
 
 @app.route(api_endpoint + 'games/<int:game_id>/action', methods=['POST'])
 def perform_action(game_id):
+  user_id = g.user.id if g.user else -1
   try:
     game = models.Game.query.get(game_id)
   except:
     abort(404)
 
   try:
+    usergame = models.UserGame.query.filter_by(game_id=game.id,
+                                               user_id=user_id).first()
+    player_id = usergame.player_id if usergame else -1
+
     data = request.get_json()
-    result = engine.perform_action('connect4', game.state, data['player'], data['action'])
+    result = engine.perform_action('connect4', game.state, player_id, data['action'])
+
     game.state = result['game_state']
-    models.db.session.add(game)
-    models.db.session.commit()
-    # don't actually update state, just return result
-    return jsonify(result)
+    game.finished = result['finished']
+    db.session.add(game)
+    for usergame in game.users:
+      usergame.winner = usergame.player_id in result['winners']
+      usergame.current_turn = usergame.player_id in result['current_players']
+      db.session.add(usergame)
+    db.session.commit()
+
+    return jsonify(game_view(game, include_view=True, player_id=player_id))
+
   except Exception as e:
     print("Exception in perform_action: {}".format(e))
     response = jsonify({'error': e.args[0]})

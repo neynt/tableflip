@@ -22,6 +22,15 @@
           player1: state.current_player === 1, \
         }'
       )
+      br
+      | You are
+      br
+      .cell(
+        :class='{ \
+          player0: state.player === 0, \
+          player1: state.player === 1, \
+        }'
+      )
     .winner(v-if='state.winner != -1')
       | Winner is
       br

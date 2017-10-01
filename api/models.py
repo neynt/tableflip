@@ -67,6 +67,8 @@ def sample_data():
 
   user = User(username='foo', password='bar')
   db.session.add(user)
+  user2 = User(username='baz', password='bar')
+  db.session.add(user2)
 
   game = Game(gametype=gametype, state={
     'board': [[-1 for i in range(7)] for j in range(6)],
@@ -75,6 +77,7 @@ def sample_data():
   db.session.add(game)
 
   usergame = UserGame(player_id=0, user=user, game=game, current_turn=True)
+  usergame = UserGame(player_id=1, user=user2, game=game, current_turn=False)
   # Alternate method #1 of adding relation:
   # usergame = UserGame(player_id=0, user=user)
   # game.users.append(usergame)

@@ -23,7 +23,6 @@
  *
  * Representation of action:
  * {
- *   player: int,
  *   column: int
  * }
  */
@@ -105,8 +104,8 @@ function is_action_legal(game_view, action) {
     return false;
   }
 
-  // The action's player must be the current player.
-  if (action.player !== game_view.current_player) {
+  // The view's player must be the current player.
+  if (game_view.player !== game_view.current_player) {
     return false;
   }
 
@@ -139,7 +138,7 @@ function perform_action(game_state, player, action) {
   }
 
   // Place piece.
-  game_state.board[row][action.column] = action.player;
+  game_state.board[row][action.column] = player;
 
   // Determine if the player won. Could be optimized by only checking around
   // piece just placed.
