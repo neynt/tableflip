@@ -1,5 +1,6 @@
 <template lang='pug'>
   #app
+    Spinner(v-if='!reauthenticated')
     .side-bar.panel(v-if='reauthenticated')
       SideBar
     .content.panel(v-if='reauthenticated')
@@ -9,11 +10,12 @@
 <script>
 import Vue from 'vue';
 import SideBar from '@/components/SideBar';
+import Spinner from '@/components/Spinner';
 import globals from '@/globals';
 import api from '@/api';
 
 export default {
-  components: { SideBar },
+  components: { SideBar, Spinner },
   mounted() {
     api.post('reauthenticate').then((response) => {
       if (response.success) {
