@@ -16,7 +16,6 @@ export default {
   components: { SideBar },
   mounted() {
     api.post('reauthenticate').then((response) => {
-      console.log(response);
       if (response.success) {
         Vue.set(globals, 'current_user', response.user);
       }

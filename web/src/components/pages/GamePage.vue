@@ -36,7 +36,6 @@ export default {
       });
     },
     onAction(action) {
-      console.log(action);
       api.post(`games/${this.gameId}/action`, {
         player: this.gameState.current_player,
         action,
