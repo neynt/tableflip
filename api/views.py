@@ -43,10 +43,9 @@ def usergame_view(usergame):
 
 @app.route(api_endpoint + 'reauthenticate', methods=['POST'])
 def reauthenticate():
-  # Refreshes an authentication session using a stored cookie.
-  if 'user_id' in session:
-    user = models.User.query.get(session['user_id'])
-    return jsonify({'success': True, 'user': user_view(user)})
+  """Refreshes an authentication session using a stored cookie."""
+  if g.user:
+    return jsonify({'success': True, 'user': user_view(g.user)})
   else:
     return jsonify({'success': False})
 
