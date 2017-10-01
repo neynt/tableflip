@@ -73,3 +73,30 @@ DATABASE_URL="postgresql://localhost/tableflip"
 ```
 
 `./start.sh api` should now talk to the local Postgres.
+
+## Games
+
+One of Tableflip's most impressive features is its extensible architecture for creating new games. A game is defined as a set of three data structures:
+
+- `game_state`: All the information in the game.
+- `game_view`: The information that a particular player can see in the game.
+- `action`: A description of an action taken by a player.
+
+And eight mostly-pure functions:
+
+- `initial_state(num_players): game_state`
+  - Creates an initial game state for `p` players.
+- `player_view(game_state, player_id): game_view`
+  - Gets of a view of the game state for a given player.
+- `current_players(game_state): [player_id]`
+  - Gets the list of players who may make actions at the current time.
+- `has_legal_action(game_view): bool`
+  - Determines whether a player with the given `game_view` can make any actions.
+- `is_action_legal(game_view, action): bool`
+  - Determines whether the given `action` is legal with player's the given `game_view`.
+- `perform_action(game_state, player_id, action): game_state`
+  - Applies an action to a game state to produce a new game state.
+- `is_game_finished(game_state): boolean`
+  - Determines whether the game is finished.
+- `winners(game_state): [player_id]`
+  - Determines a list of winners for the game.
