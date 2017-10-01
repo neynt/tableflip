@@ -13,7 +13,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 app.secret_key = os.environ.get('SECRET_KEY')
 
-CORS(app)
+CORS(app, supports_credentials=True)
 db = SQLAlchemy(app)
 
 from api import models, views

@@ -34,6 +34,7 @@ const api = {
     return fetch(`${API_URL}${url}${queryString(params)}`, {
       method: 'GET',
       headers: headers(),
+      credentials: 'include',
     })
     .then(parseResponse);
   },
@@ -43,6 +44,7 @@ const api = {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify(data),
+      credentials: 'include',
     })
     .then(parseResponse);
   },
@@ -52,6 +54,7 @@ const api = {
       method: 'PATCH',
       headers: headers(),
       body: JSON.stringify(data),
+      credentials: 'include',
     })
     .then(parseResponse);
   },
@@ -60,6 +63,7 @@ const api = {
     return fetch(`${API_URL}${url}`, {
       method: 'DELETE',
       headers: headers(),
+      credentials: 'include',
     })
     .then(parseResponse);
   },

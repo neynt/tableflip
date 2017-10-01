@@ -41,6 +41,15 @@ def usergame_view(usergame):
   obj["current_turn"] = usergame.current_turn
   return obj
 
+@app.route(api_endpoint + 'reauthenticate', methods=['POST'])
+def reauthenticate():
+  # Refreshes an authentication session using a stored cookie.
+  if 'user_id' in session:
+    user = models.User.query.get(session['user_id'])
+    return jsonify({'success': True, 'user': user_view(user)})
+  else:
+    return jsonify({'success': False})
+
 @app.route(api_endpoint + 'login', methods=['POST'])
 def login():
   data = request.get_json()

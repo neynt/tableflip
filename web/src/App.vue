@@ -1,16 +1,31 @@
 <template lang='pug'>
   #app
-    .side-bar.panel
+    .side-bar.panel(v-if='reauthenticated')
       SideBar
-    .content.panel
+    .content.panel(v-if='reauthenticated')
       router-view
 </template>
 
 <script>
+import Vue from 'vue';
 import SideBar from '@/components/SideBar';
+import globals from '@/globals';
+import api from '@/api';
 
 export default {
   components: { SideBar },
+  mounted() {
+    api.post('reauthenticate').then((response) => {
+      console.log(response);
+      if (response.success) {
+        Vue.set(globals, 'current_user', response.user);
+      }
+      this.reauthenticated = true;
+    });
+  },
+  data: () => ({
+    reauthenticated: false,
+  }),
 };
 </script>
 

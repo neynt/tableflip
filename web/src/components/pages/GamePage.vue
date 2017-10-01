@@ -1,14 +1,18 @@
 <template lang='pug'>
   .game-page
     component(v-if="gameState" :is="gameView" :state="gameState" :onaction="onAction")
+    div(v-if="gameState === undefined")
+      Spinner
     div(v-if="gameState === null")
       h2 Game not found. (╯°□°)╯︵ ┻━┻
 </template>
 <script>
 import Connect4View from '@/games/connect4/View';
+import Spinner from '@/components/Spinner';
 import api from '@/api';
 
 export default {
+  components: { Spinner },
   computed: {
     gameId() { return this.$route.params.id; },
     gameView() { return Connect4View; },
