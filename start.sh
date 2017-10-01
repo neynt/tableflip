@@ -21,7 +21,7 @@ case "$1" in
     ;;
 "api")
     source venv/bin/activate
-    flask run
+    flask run --with-threads
     ;;
 "shell")
     source venv/bin/activate
