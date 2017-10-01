@@ -1,9 +1,13 @@
-from flask import abort, jsonify, g, request
+from flask import abort, jsonify, g, request, session
 
 from api import app, engine, models
 
 version = 1.0
 api_endpoint = '/tableflip/api/v{}/'.format(version)
+
+@app.before_request
+def before_request():
+  g.user = models.User.query.filter_by(id=session.get('user_id')).first()
 
 def user_view(user):
   return {
@@ -36,6 +40,24 @@ def usergame_view(usergame):
   obj = game_view(usergame.game)
   obj["current_turn"] = usergame.current_turn
   return obj
+
+@app.route(api_endpoint + 'login', methods=['POST'])
+def login():
+  data = request.get_json()
+  username = data['username']
+  user = models.User.query.filter_by(username=username).first()
+
+  if user: # todo verify password
+    session['user_id'] = user.id
+    session.permanent = True
+    return jsonify({'success': True, 'user': user_view(user)})
+  else:
+    abort(403)
+
+@app.route(api_endpoint + 'logout', methods=['GET'])
+def logout():
+  session.pop('user_id', None)
+  return jsonify({'success': True})
 
 @app.route(api_endpoint + 'users', methods=['GET'])
 def get_users():

@@ -57,6 +57,7 @@ a {
   color: #08f;
   text-decoration: none;
   outline: none;
+  cursor: pointer;
 }
 a:hover {
   text-decoration: underline;

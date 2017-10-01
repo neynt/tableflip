@@ -3,12 +3,13 @@
     h1 Tableflip
     // TODO: Fix this -if's after login works.
     // Currently we show everything for debugging.
-    div(v-if='current_user === null')
+    div(v-if='globals.current_user === null')
       router-link(:to="{ name: 'LoginPage' }") Sign in
       br
       router-link(:to="{ name: 'RegisterPage' }") Register
-    div(v-if='true')
-      a(href='#TODO') Sign out
+    div(v-if='globals.current_user !== null')
+      p Logged in as {{ globals.current_user.username }}
+      a(v-on:click='signout') Sign out
       br
       router-link(:to="{ name: 'IndexPage' }") Lobby
 
@@ -23,6 +24,11 @@
           | {{ game.name }}
 </template>
 <script>
+import Vue from 'vue';
+import api from '@/api';
+import globals from '@/globals';
+import router from '@/router';
+
 export default {
   computed: {
     active_games: () => [
@@ -35,8 +41,15 @@ export default {
     ],
   },
   data: () => ({
-    current_user: null,
+    globals,
   }),
+  methods: {
+    signout: () => {
+      Vue.set(globals, 'current_user', null);
+      api.get('logout');
+      router.push('/login');
+    },
+  },
 };
 </script>
 <style>

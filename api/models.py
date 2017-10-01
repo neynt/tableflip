@@ -1,6 +1,5 @@
 from api import db
 
-
 class UserLobby(db.Model):
   __tablename__ = 'user_lobby'
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
