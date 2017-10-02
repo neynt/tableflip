@@ -49,13 +49,30 @@ def reauthenticate():
   else:
     return jsonify({'success': False})
 
+@app.route(api_endpoint + 'register', methods=['POST'])
+def register():
+  try:
+    data = request.get_json()
+    username = data['username']
+    password = 'bar' # TODO: hash and store actual password
+    new_user = models.User(username=username, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    session['user_id'] = new_user.id
+    session.permanent = True
+    return jsonify({'success': True, 'user': user_view(new_user)})
+
+  except:
+    abort(403)
+
 @app.route(api_endpoint + 'login', methods=['POST'])
 def login():
   data = request.get_json()
   username = data['username']
   user = models.User.query.filter_by(username=username).first()
 
-  if user: # todo verify password
+  if user: # TODO: verify password
     session['user_id'] = user.id
     session.permanent = True
     return jsonify({'success': True, 'user': user_view(user)})
