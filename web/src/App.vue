@@ -54,9 +54,19 @@ input, textarea, button {
   border: 2px solid #999;
   padding: 5px 8px;
   margin: 3px 0;
+  outline: 0;
+}
+button.even {
+  margin: 0;
 }
 button {
   background: #eee;
+}
+button:hover {
+  background: #f5f5f5;
+}
+button:active {
+  background: #ddd;
 }
 
 /* Headers */
@@ -98,5 +108,20 @@ a:active {
 }
 .panel {
   padding: 10px;
+}
+
+/* Tables */
+table {
+  padding: 10px;
+}
+th, td {
+  text-align: left;
+  padding-right: 20px;
+}
+tr {
+}
+th {
+  font-weight: normal;
+  color: #999;
 }
 </style>
