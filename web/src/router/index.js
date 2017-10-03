@@ -4,6 +4,7 @@ import IndexPage from '@/components/pages/IndexPage';
 import GamePage from '@/components/pages/GamePage';
 import LoginPage from '@/components/pages/LoginPage';
 import RegisterPage from '@/components/pages/RegisterPage';
+import LobbyPage from '@/components/pages/LobbyPage';
 
 Vue.use(Router);
 
@@ -29,6 +30,16 @@ export default new Router({
       path: '/game/:id',
       name: 'GamePage',
       component: GamePage,
+    },
+    {
+      path: '/lobby',
+      name: 'LobbyPage',
+      component: LobbyPage,
+    },
+    {
+      path: '/lobby/:id',
+      name: 'LobbyPage',
+      component: LobbyPage,
     },
   ],
 });

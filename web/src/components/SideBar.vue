@@ -1,23 +1,23 @@
 <template lang='pug'>
   div
     h1 Tableflip
-    // TODO: Fix this -if's after login works.
-    // Currently we show everything for debugging.
     div(v-if='globals.current_user === null')
+      // Not logged in
       router-link(:to="{ name: 'LoginPage' }") Sign in
       br
       router-link(:to="{ name: 'RegisterPage' }") Register
-    div(v-if='globals.current_user !== null')
+    div(v-else)
+      // Logged in
       p Logged in as {{ globals.current_user.username }}
       a(v-on:click='signout') Sign out
       br
-      router-link(:to="{ name: 'IndexPage' }") Lobby
-
+      router-link(:to="{ name: 'IndexPage' }") Dashboard
+      br
+      router-link(:to="{ name: 'LobbyPage' }") Lobbies
       h2 Active games
       div(v-for='game in active_games')
         router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
           | {{ game.name }}
-
       h2 Finished games
       div(v-for='game in finished_games')
         router-link(:to="{ name: 'GamePage', params: { id: game.id } }")

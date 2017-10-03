@@ -1,26 +1,15 @@
 <template lang='pug'>
   .main-page
-    .main-content
-      p Welcome to Tableflip — Board Game Server.
-      p (╯°□°)╯︵ ┻━┻
-      h2 Lobbies
-      Spinner(v-if="lobbies === undefined")
-      div(v-if="lobbies")
-        table
-          tr
-            td Type
-            td Players
-            td Min Players
-            td Max Players
-          tr(v-for="lobby in lobbies")
-            td {{ lobby.type }}
-            td {{ lobby.players.length }}
-            td {{ lobby.min_players }}
-            td {{ lobby.max_players }}
+    .main-content(v-if='globals.current_user')
+      h1 This will eventually be a dashboard
+    .main-content(v-else)
+      h1 Welcome to Tableflip — Board Game Server.
+      h1 (╯°□°)╯︵ ┻━┻
 </template>
 <script>
 import Spinner from '@/components/Spinner';
 import api from '@/api';
+import globals from '@/globals';
 
 export default {
   components: { Spinner },
@@ -32,6 +21,7 @@ export default {
   },
   data: () => ({
     lobbies: undefined,
+    globals,
   }),
   methods: {
     fetchData() {

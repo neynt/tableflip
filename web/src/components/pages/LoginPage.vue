@@ -28,6 +28,7 @@ export default {
   methods: {
     submit() {
       this.logging_in = true;
+      this.error = '';
       api.post('login', {
         username: this.username,
         password: this.password,
