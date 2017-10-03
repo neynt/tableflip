@@ -36,6 +36,15 @@ def game_view(game, include_view=False, player_id=-1):
     obj["view"] = engine.player_view(game.gametype.code, game.state, player_id)
   return obj
 
+def game_type_view(game_type):
+  return {
+    "id": game_type.id,
+    "code": game_type.code,
+    "name": game_type.name,
+    "min_players": game_type.min_players,
+    "max_players": game_type.max_players,
+  }
+
 def usergame_view(usergame):
   obj = game_view(usergame.game)
   obj["current_turn"] = usergame.current_turn
@@ -170,6 +179,11 @@ def perform_action(game_id):
     response = jsonify({'error': e.args[0]})
     response.status_code = 500
     return response
+
+@app.route(api_endpoint + 'game_types', methods=['GET'])
+def get_game_types():
+  game_types = models.GameType.query.all()
+  return jsonify([game_type_view(game) for game in game_types])
 
 @app.route('/')
 def hello_world():
