@@ -16,13 +16,16 @@ def user_view(user):
   }
 
 def lobby_view(lobby):
-  return {
+  obj = {
     "id": lobby.id,
     "type": lobby.gametype.code,
     "min_players": lobby.gametype.max_players,
     "max_players": lobby.gametype.max_players,
-    "players": [lobbygame.user.id for lobbygame in lobby.users]
+    "players": [lobbygame.user_id for lobbygame in lobby.users]
   }
+  if lobby.game_id is not None:
+    obj["game_id"] = lobby.game_id
+  return obj
 
 def game_view(game, include_view=False, player_id=-1):
   obj = {
@@ -108,7 +111,7 @@ def get_user_games(user_id):
 
 @app.route(api_endpoint + 'lobbies', methods=['GET'])
 def get_lobbies():
-  lobbies = models.Lobby.query.all()
+  lobbies = models.Lobby.query.filter_by(game_id=None).all()
   return jsonify([lobby_view(lobby) for lobby in lobbies])
 
 @app.route(api_endpoint + 'lobbies/<int:lobby_id>', methods=['GET'])
@@ -118,6 +121,30 @@ def get_lobby(lobby_id):
     return jsonify(lobby_view(lobby))
   except:
     abort(404)
+
+@app.route(api_endpoint + 'lobbies/<int:lobby_id>/start', methods=['POST'])
+def start_lobby(lobby_id):
+  user_id = g.user.id if g.user else -1
+  try:
+    lobby = models.Lobby.query.get(lobby_id)
+
+    # Game must not have been started.
+    if lobby.game_id is not None:
+      raise Exception('game already started')
+
+    # User must be in the lobby.
+    userlobby = models.UserLobby.query.filter_by(user_id=user_id,
+                                                 lobby_id=lobby.id).first()
+    if userlobby is None:
+      raise Exception('user not in lobby')
+
+    game = models.Game.create_from_lobby(lobby)
+    db.session.commit()
+    return jsonify(lobby_view(lobby))
+
+  except Exception as e:
+    print('Exception in start_lobby: {}'.format(e))
+    abort(403)
 
 @app.route(api_endpoint + 'games', methods=['GET'])
 def get_games():
