@@ -1,4 +1,6 @@
-from api import db
+import random
+
+from api import db, engine
 
 class UserLobby(db.Model):
   __tablename__ = 'user_lobby'
@@ -44,6 +46,29 @@ class Game(db.Model):
   finished = db.Column(db.Boolean, default=False)
   gametype_id = db.Column(db.Integer, db.ForeignKey('gametype.id'))
   gametype = db.relationship('GameType')
+
+  @classmethod
+  def create_from_lobby(self, lobby):
+    userlobbies = lobby.users
+
+    # Get inital state from game engine.
+    response = engine.initial_state(lobby.gametype.code, len(userlobbies))
+
+    game = Game(state=response['game_state'], finished=response['finished'])
+    db.session.add(game)
+
+    random.shuffle(userlobbies)
+    for i, userlobby in enumerate(userlobbies):
+      usergame = UserGame(user=userlobby.user,
+                          game=game,
+                          player_id=i,
+                          current_turn=i in response['current_players'])
+      db.session.add(usergame)
+
+    lobby.game = game
+    db.session.add(lobby)
+
+    return game
 
 class GameType(db.Model):
   __tablename__ = 'gametype'
