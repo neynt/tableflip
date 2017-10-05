@@ -9,7 +9,8 @@
         .lobby-row
           .lobby-section
             h2 Game
-            .bignum {{ lobby.type }}
+            .bignum {{ games[lobby.type].name }}
+        .lobby-row
           .lobby-section
             h2 Players
             .bignum {{ lobby.players.length }}
@@ -22,10 +23,12 @@
         .lobby-row
           .lobby-section
             h2 Current players
-            .player-list
-              .player-item(v-for='player in lobby.players')
+            .bignum
+              span(v-for='(player, idx) in lobby.players')
+                span.comma(v-if='idx !== 0')
+                  | , 
                 | {{ player.username }}
-            .bignum(v-if='lobby.players.length === 0')
+            .bignum.faint(v-if='lobby.players.length === 0')
               | None
         .lobby-controls
           button(@click='join') Join
@@ -34,6 +37,7 @@
 <script>
 import api from '@/api';
 import Spinner from '@/components/Spinner';
+import games from '@/games/index';
 
 export default {
   components: { Spinner },
@@ -42,6 +46,7 @@ export default {
   },
   data: () => ({
     lobby: undefined,
+    games,
   }),
   created() {
     this.fetchData();
@@ -65,7 +70,7 @@ export default {
 };
 </script>
 <style>
-.player-list {
-  margin-left: 20px;
+.faint {
+  color: #888;
 }
 </style>

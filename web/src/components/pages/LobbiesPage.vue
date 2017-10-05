@@ -9,7 +9,7 @@
         .lobby-row
           .lobby-section
             h2 Game
-            .bignum {{ lobby.type }} 
+            .bignum {{ games[lobby.type].name }} 
         .lobby-row
           .lobby-section
             h2 Players
@@ -26,6 +26,7 @@
 <script>
 import api from '@/api';
 import Spinner from '@/components/Spinner';
+import games from '@/games/index';
 
 export default {
   components: { Spinner },
@@ -36,6 +37,7 @@ export default {
   },
   data: () => ({
     lobbies: undefined,
+    games,
   }),
   created() {
     this.fetchData();

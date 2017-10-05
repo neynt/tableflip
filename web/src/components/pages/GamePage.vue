@@ -9,7 +9,7 @@
 <script>
 import Spinner from '@/components/Spinner';
 import api from '@/api';
-import games from '@/games';
+import games from '@/games/index';
 
 export default {
   components: { Spinner },
@@ -17,7 +17,7 @@ export default {
     gameId() { return this.$route.params.id; },
     gameView() {
       if (this.gameType !== undefined) {
-        return games[this.gameType];
+        return games[this.gameType].view;
       }
       return undefined;
     },
