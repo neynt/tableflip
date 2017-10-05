@@ -38,7 +38,6 @@ export default {
   methods: {
     fetchData() {
       api.get('lobbies').then((data) => {
-        console.log(data);
         this.lobbies = data;
       });
     },
