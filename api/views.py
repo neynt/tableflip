@@ -9,11 +9,14 @@ api_endpoint = '/tableflip/api/v{}/'.format(version)
 def before_request():
   g.user = models.User.query.filter_by(id=session.get('user_id')).first()
 
-def user_view(user):
-  return {
+def user_view(user, player_id=None):
+  obj = {
     "id": user.id,
     "username": user.username,
   }
+  if player_id is not None:
+    obj["player_id"] = player_id
+  return obj
 
 def lobby_view(lobby):
   obj = {
@@ -21,7 +24,7 @@ def lobby_view(lobby):
     "type": lobby.gametype.code,
     "min_players": lobby.gametype.max_players,
     "max_players": lobby.gametype.max_players,
-    "players": [lobbygame.user_id for lobbygame in lobby.users]
+    "players": [user_view(lobbygame.user) for lobbygame in lobby.users]
   }
   if lobby.game_id is not None:
     obj["game_id"] = lobby.game_id
@@ -32,8 +35,10 @@ def game_view(game, include_view=False, player_id=-1):
     "id": game.id,
     "type": game.gametype.code,
     "finished": game.finished,
-    "players": [usergame.user.id for usergame in game.users],
-    "winners": [usergame.user.id for usergame in game.users if usergame.winner]
+    "players": [user_view(usergame.user, usergame.player_id)
+                for usergame in game.users],
+    "winners": [user_view(usergame.user, usergame.player_id)
+                for usergame in game.users if usergame.winner]
   }
   if include_view:
     obj["view"] = engine.player_view(game.gametype.code, game.state, player_id)
