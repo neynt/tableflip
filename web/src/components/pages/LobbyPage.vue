@@ -1,24 +1,27 @@
 <template lang='pug'>
   .lobby-page
-    h1 Lobby
-    button Create new game
+    h1 Lobbies
+    button(@click='$router.push({ name: "CreateLobbyPage" })') Create new lobby
     br
     Spinner(v-if='lobbies === undefined')
     .lobbies(v-else)
-      .lobby(v-for='lobby in lobbies')
-        .lobby-type {{ lobby.type }} 
-        .lobby-info
-          .lobby-info-section
+      .lobby(v-for='(lobby, idx) in lobbies')
+        .lobby-row
+          .lobby-section
+            h2 Game
+            .bignum {{ lobby.type }} 
+        .lobby-row
+          .lobby-section
             h2 Players
             .bignum {{ lobby.players.length }}
-          .lobby-info-section
+          .lobby-section
             h2 Required players
             .bignum(v-if='lobby.min_players === lobby.max_players')
               | {{ lobby.min_players }}
             .bignum(v-else)
               | {{ lobby.min_players }} – {{ lobby.max_players }}
         .lobby-controls
-          button.even View
+          button.even(@click='viewDetails(lobby.id)') View
 </template>
 <script>
 import api from '@/api';
@@ -26,6 +29,11 @@ import Spinner from '@/components/Spinner';
 
 export default {
   components: { Spinner },
+  computed: {
+    lobby_id() {
+      return this.route.params.id;
+    },
+  },
   data: () => ({
     lobbies: undefined,
   }),
@@ -41,32 +49,11 @@ export default {
         this.lobbies = data;
       });
     },
+    viewDetails(id) {
+      this.$router.push({ name: 'LobbyDetailPage', params: { id } });
+    },
   },
 };
 </script>
 <style>
-.lobby {
-  display: inline-block;
-  border: 2px solid #aaa;
-  padding: 10px;
-}
-.lobby-info {
-  display: flex;
-  flex-direction: row;
-}
-.lobby-info-section {
-  margin: 0px 10px;
-}
-.lobby-info-section h2 {
-  font-size: 100%;
-}
-.bignum {
-  font-size: 200%;
-}
-.lobby-type {
-  font-size: 130%;
-}
-.lobby-controls {
-  text-align: right;
-}
 </style>
