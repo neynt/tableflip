@@ -46,18 +46,18 @@ html, body, #app {
 }
 
 /* Input */
-body, input, textarea, button {
+body, input, textarea, button, select {
   color: #333;
   font: 16px 'Roboto Condensed', sans-serif;
 }
-input, textarea, button {
+input, textarea, button, select {
   border: 2px solid #999;
   padding: 5px 8px;
-  margin: 3px 0;
+  margin: 3px 3px 3px 0;
   outline: 0;
 }
-button.even {
-  margin: 0;
+select, option {
+  padding: 4px 8px;
 }
 button {
   background: #eee;
@@ -123,5 +123,37 @@ tr {
 th {
   font-weight: normal;
   color: #999;
+}
+
+/* Lobbies */
+.lobby {
+  display: inline-block;
+  border: 2px solid #aaa;
+  padding: 10px;
+  margin: 0 5px 5px 0;
+}
+.lobby h2 {
+  margin: 0;
+}
+.lobby-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 5px 0;
+}
+.lobby-section {
+  margin: 0px 10px;
+}
+.lobby-section h2 {
+  font-size: 100%;
+}
+.bignum {
+  font-size: 200%;
+}
+.lobby-type {
+  font-size: 130%;
+}
+.lobby-controls {
+  text-align: right;
 }
 </style>
