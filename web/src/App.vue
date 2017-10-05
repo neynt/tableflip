@@ -59,7 +59,7 @@ input, textarea, button, select {
 select, option {
   padding: 4px 8px;
 }
-button {
+button, select {
   background: #eee;
 }
 button:hover {
@@ -129,7 +129,7 @@ th {
 .lobby {
   display: inline-block;
   border: 2px solid #aaa;
-  padding: 10px;
+  padding: 5px;
   margin: 0 5px 5px 0;
 }
 .lobby h2 {
@@ -139,10 +139,10 @@ th {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin: 5px 0;
 }
 .lobby-section {
-  margin: 0px 10px;
+  margin: 8px 4px 4px;
+  padding: 0 6px;
 }
 .lobby-section h2 {
   font-size: 100%;
