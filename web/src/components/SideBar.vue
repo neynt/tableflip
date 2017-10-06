@@ -1,6 +1,8 @@
 <template lang='pug'>
   div
-    h1 Tableflip
+    h1
+      span.accent(style='font-size: 60%') ┻━┻
+      | Tableflip
     div(v-if='globals.current_user === null')
       // Not logged in
       router-link(:to="{ name: 'LoginPage' }") Sign in

@@ -57,7 +57,7 @@ export default {
 <style scoped>
 .board {
   display: inline-block;
-  background: #5af;
+  background: #8df;
   padding: 10px;
   border-radius: 15px;
   border: 2px solid rgba(45, 90, 135, 0.8);
