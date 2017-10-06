@@ -9,7 +9,7 @@
         .lobby-row
           .lobby-section
             h2 Game
-            .bignum {{ _get(games, [lobby.type, 'name'], lobby.type) }} 
+            .bignum {{ games[lobby.type] && games[lobby.type].name || lobby.type }} 
         .lobby-row
           .lobby-section
             h2 Players
@@ -27,7 +27,6 @@
 import api from '@/api';
 import Spinner from '@/components/Spinner';
 import games from '@/games/index';
-import _ from 'lodash';
 
 export default {
   components: { Spinner },
@@ -55,7 +54,6 @@ export default {
     viewDetails(id) {
       this.$router.push({ name: 'LobbyDetailPage', params: { id } });
     },
-    _get: _.get,
   },
 };
 </script>
