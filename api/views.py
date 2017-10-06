@@ -58,6 +58,26 @@ def usergame_view(usergame):
   obj["current_turn"] = usergame.current_turn
   return obj
 
+@app.route(api_endpoint + 'lobbies', methods=['GET', 'POST'])
+def endpoint_lobbies():
+  if request.method == 'GET':
+    lobbies = models.Lobby.query.all()
+    return jsonify([lobby_view(lobby) for lobby in lobbies])
+  if request.method == 'POST':
+    if g.user == None:
+      abort(403)
+
+    data = request.get_json()
+    gametype = data['type']
+
+    new_lobby = models.Lobby(gametype=gametype)
+    db.session.add(new_lobby)
+    new_userlobby = models.UserLobby(user=g.user, lobby=new_lobby)
+    db.session.add(new_userlobby)
+    db.session.commit()
+    return jsonify(lobby_view(new_lobby))
+
+
 @app.route(api_endpoint + 'reauthenticate', methods=['POST'])
 def reauthenticate():
   """Refreshes an authentication session using a stored cookie."""
@@ -122,11 +142,6 @@ def get_user_games(user_id):
     return jsonify([usergame_view(usergame) for usergame in usergames])
   except:
     abort(404)
-
-@app.route(api_endpoint + 'lobbies', methods=['GET'])
-def get_lobbies():
-  lobbies = models.Lobby.query.filter_by(game_id=None).all()
-  return jsonify([lobby_view(lobby) for lobby in lobbies])
 
 @app.route(api_endpoint + 'lobbies/<int:lobby_id>', methods=['GET'])
 def get_lobby(lobby_id):
