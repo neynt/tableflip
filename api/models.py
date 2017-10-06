@@ -54,7 +54,7 @@ class Game(db.Model):
     # Get inital state from game engine.
     response = engine.initial_state(lobby.gametype.code, len(userlobbies))
 
-    game = Game(state=response['game_state'], finished=response['finished'])
+    game = Game(state=response['game_state'], finished=response['finished'], gametype=lobby.gametype)
     db.session.add(game)
 
     random.shuffle(userlobbies)
