@@ -72,15 +72,17 @@ button:active {
 /* Headers */
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
-  color: #999;
+  color: #888;
 }
 h2, h3, h4, h5, h6 {
   margin-top: 0.5em;
 }
 
 /* Links */
+.accent, a {
+  color: #b01;
+}
 a {
-  color: #08f;
   text-decoration: none;
   outline: none;
   cursor: pointer;
@@ -89,7 +91,7 @@ a:hover {
   text-decoration: underline;
 }
 a:active {
-  color: #5af;
+  color: #d13;
 }
 
 /* Containers */
