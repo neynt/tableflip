@@ -29,7 +29,7 @@
     .stash
       .piece(
         v-for='cell in state.pieces'
-        :class='{ blue: cell & 0x8, square: cell & 0x4, large: cell & 0x2 }'
+        :class='{ blue: cell & 0x8, square: cell & 0x4, large: cell & 0x2, hollow: cell & 0x1 }'
         @click='give(cell)'
       )
         .dot(v-if='cell & 0x1')
@@ -112,9 +112,6 @@ export default {
 }
 .square {
   border-radius: 5px !important;
-}
-.hollow {
-  content: '<div class=\'dot\'></div>'
 }
 .dot {
   background: rgba(0, 0, 0, 0.5);
