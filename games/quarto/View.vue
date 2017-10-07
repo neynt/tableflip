@@ -29,7 +29,7 @@
     .stash
       .piece(
         v-for='cell in state.pieces'
-        :class='{ blue: cell & 0x8, square: cell & 0x4, large: cell & 0x2, hollow: cell & 0x1 }'
+        :class='{ blue: cell & 0x8, square: cell & 0x4, large: cell & 0x2 }'
         @click='give(cell)'
       )
         .dot(v-if='cell & 0x1')
