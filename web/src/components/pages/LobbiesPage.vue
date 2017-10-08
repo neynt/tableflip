@@ -30,11 +30,6 @@ import games from '@/games/index';
 
 export default {
   components: { Spinner },
-  computed: {
-    lobby_id() {
-      return this.route.params.id;
-    },
-  },
   data: () => ({
     lobbies: undefined,
     games,
