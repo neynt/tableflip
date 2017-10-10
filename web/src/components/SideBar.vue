@@ -21,7 +21,7 @@
       p(v-else-if='activeGames.length === 0') No active games.
       div(v-for='game in activeGames')
         router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
-          | {{ game.name }}
+          | {{ game.name }} with {{ game.with }}
       h2 Finished games
       Spinner(v-if='finishedGames === undefined')
       p(v-else-if='finishedGames.length === 0') No finished games.
