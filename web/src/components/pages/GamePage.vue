@@ -23,18 +23,25 @@ export default {
     },
   },
   created() {
-    this.fetchData();
+    this.startPolling();
   },
   watch: {
-    $route: 'fetchData',
+    $route: 'startPolling',
   },
   data: () => ({
     gameType: undefined,
     gameState: undefined,
   }),
   methods: {
-    fetchData() {
+    startPolling() {
       this.gameState = undefined;
+      this.fetchData();
+      const that = this;
+      this.pollingTimer = setInterval(() => {
+        that.fetchData();
+      }, 1000);
+    },
+    fetchData() {
       api.get(`games/${this.gameId}`).then((data) => {
         this.gameType = data.type;
         this.gameState = data.view;
@@ -49,6 +56,9 @@ export default {
         this.gameState = data.view;
       });
     },
+  },
+  destroyed() {
+    clearInterval(this.pollingTimer);
   },
 };
 </script>
