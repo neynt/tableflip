@@ -20,6 +20,7 @@ export default {
     api.post('reauthenticate').then((response) => {
       if (response.success) {
         Vue.set(globals, 'current_user', response.user);
+        globals.fetchGames();
       }
       this.reauthenticated = true;
     });

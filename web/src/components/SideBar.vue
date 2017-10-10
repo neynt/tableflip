@@ -17,15 +17,15 @@
       br
       router-link(:to="{ name: 'LobbyPage' }") Lobbies
       h2 Active games
-      Spinner(v-if='active_games === undefined')
-      p(v-else-if='active_games.length === 0') No active games.
-      div(v-for='game in active_games')
+      Spinner(v-if='activeGames === undefined')
+      p(v-else-if='activeGames.length === 0') No active games.
+      div(v-for='game in activeGames')
         router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
           | {{ game.name }}
       h2 Finished games
-      Spinner(v-if='finished_games === undefined')
-      p(v-else-if='finished_games.length === 0') No finished games.
-      div(v-for='game in finished_games')
+      Spinner(v-if='finishedGames === undefined')
+      p(v-else-if='finishedGames.length === 0') No finished games.
+      div(v-for='game in finishedGames')
         router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
           | {{ game.name }} with {{ game.with }}
 </template>
@@ -54,16 +54,16 @@ function gameView(game) {
 export default {
   components: { Spinner },
   computed: {
-    active_games() {
-      if (this.games === undefined) {
-        return undefined;
+    activeGames() {
+      if (globals.games) {
+        return globals.games.filter(game => !game.finished)
+          .map(gameView);
       }
-      return this.games.filter(game => !game.finished)
-        .map(gameView);
+      return undefined;
     },
-    finished_games() {
-      if (this.games !== undefined) {
-        return this.games.filter(game => game.finished)
+    finishedGames() {
+      if (globals.games) {
+        return globals.games.filter(game => game.finished)
           .map(gameView);
       }
       return undefined;
@@ -71,23 +71,11 @@ export default {
   },
   data: () => ({
     globals,
-    games: undefined,
   }),
-  created() {
-    this.fetchData();
-  },
   methods: {
-    fetchData() {
-      this.games = undefined;
-      if (globals.current_user) {
-        api.get(`users/${globals.current_user.id}/games`).then((data) => {
-          this.games = data;
-        });
-      }
-    },
     signout: () => {
       Vue.set(globals, 'current_user', null);
-      this.games = undefined;
+      globals.games = null;
       api.get('logout');
       router.push('/login');
     },
