@@ -36,16 +36,22 @@ export default {
     startPolling() {
       this.gameState = undefined;
       this.fetchData();
-      const that = this;
+      if (this.pollingTimer) {
+        clearInterval(this.pollingTimer);
+      }
       this.pollingTimer = setInterval(() => {
-        that.fetchData();
+        this.fetchData();
       }, 1000);
+      this.fetchData();
     },
     fetchData() {
+      const expectedGameId = this.gameId;
       api.get(`games/${this.gameId}`).then((data) => {
+        if (this.gameId !== expectedGameId) return;
         this.gameType = data.type;
         this.gameState = data.view;
       }).catch(() => {
+        if (this.gameId !== expectedGameId) return;
         this.gameState = null;
       });
     },
@@ -59,6 +65,7 @@ export default {
   },
   destroyed() {
     clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
   },
 };
 </script>
