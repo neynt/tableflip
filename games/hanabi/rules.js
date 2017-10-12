@@ -257,7 +257,7 @@ function perform_action(game_state, player, action) {
   const game_copy = JSON.parse(JSON.stringify(game_state));
 
   if (action.type === 'play' || action.type === 'discard') {
-    const card = game_copy.hands[player].splice(action.index, 1);
+    const card = game_copy.hands[player].splice(action.index, 1)[0];
     game_copy.hinted[player].splice(action.index, 1);
 
     if (action.type === 'play') {
