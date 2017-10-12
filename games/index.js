@@ -29,4 +29,11 @@ export default {
     min_players: 2,
     max_players: 5,
   },
+  euchre: {
+    name: 'Euchre',
+    view: () => import('./euchre/View'),
+    rules: () => import('./euchre/rules'),
+    min_players: 4,
+    max_players: 4,
+  },
 };
