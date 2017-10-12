@@ -8,6 +8,8 @@ class UserLobby(db.Model):
   lobby_id = db.Column(db.Integer, db.ForeignKey('lobby.id'), primary_key=True)
   user = db.relationship('User', back_populates='lobbies')
   lobby = db.relationship('Lobby', back_populates='users')
+  def __repr__(self):
+    return '<UserLobby user=%r lobby=%r>' % (self.user, self.lobby)
 
 class UserGame(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
@@ -61,12 +63,13 @@ class Game(db.Model):
     game = Game(state=response['game_state'], finished=response['finished'], gametype=lobby.gametype)
     db.session.add(game)
 
-    random.shuffle(userlobbies)
+    player_ids = list(range(len(userlobbies)))
+    random.shuffle(player_ids)
     for i, userlobby in enumerate(userlobbies):
       usergame = UserGame(user=userlobby.user,
                           game=game,
-                          player_id=i,
-                          current_turn=i in response['current_players'])
+                          player_id=player_ids[i],
+                          current_turn=player_ids[i] in response['current_players'])
       db.session.add(usergame)
 
     lobby.game = game
