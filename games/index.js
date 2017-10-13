@@ -6,4 +6,18 @@ export default {
     min_players: 2,
     max_players: 2,
   },
+  quarto: {
+    name: 'Quarto',
+    view: () => import('./quarto/View'),
+    rules: () => import('./quarto/rules'),
+    min_players: 2,
+    max_players: 2,
+  },
+  hanabi: {
+    name: 'Hanabi',
+    view: () => import('./hanabi/View'),
+    rules: () => import('./hanabi/rules'),
+    min_players: 2,
+    max_players: 5,
+  },
 };

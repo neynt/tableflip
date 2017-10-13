@@ -208,7 +208,7 @@ def perform_action(game_id):
     player_id = usergame.player_id if usergame else -1
 
     data = request.get_json()
-    result = engine.perform_action('connect4', game.state, player_id, data['action'])
+    result = engine.perform_action(game.gametype.code, game.state, player_id, data['action'])
 
     game.state = result['game_state']
     game.finished = result['finished']

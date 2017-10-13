@@ -8,6 +8,8 @@ class UserLobby(db.Model):
   lobby_id = db.Column(db.Integer, db.ForeignKey('lobby.id'), primary_key=True)
   user = db.relationship('User', back_populates='lobbies')
   lobby = db.relationship('Lobby', back_populates='users')
+  def __repr__(self):
+    return '<UserLobby user=%r lobby=%r>' % (self.user, self.lobby)
 
 class UserGame(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
@@ -27,7 +29,7 @@ class User(db.Model):
   games = db.relationship('UserGame', back_populates='user')
 
   def __repr__(self):
-    return '<User %r>' % (self.username)
+    return '<User username=%r>' % (self.username)
 
 class Lobby(db.Model):
   __tablename__ = 'lobby'
@@ -37,6 +39,10 @@ class Lobby(db.Model):
   gametype = db.relationship('GameType')
   game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True)
   game = db.relationship('Game')
+
+  def __repr__(self):
+    return '<Lobby id=%r gametype_id=%r game_id=%r>' % (
+        self.id, self.gametype_id, self.game_id)
 
 class Game(db.Model):
   __tablename__ = 'game'
@@ -54,21 +60,26 @@ class Game(db.Model):
     # Get inital state from game engine.
     response = engine.initial_state(lobby.gametype.code, len(userlobbies))
 
-    game = Game(state=response['game_state'], finished=response['finished'])
+    game = Game(state=response['game_state'], finished=response['finished'], gametype=lobby.gametype)
     db.session.add(game)
 
-    random.shuffle(userlobbies)
+    player_ids = list(range(len(userlobbies)))
+    random.shuffle(player_ids)
     for i, userlobby in enumerate(userlobbies):
       usergame = UserGame(user=userlobby.user,
                           game=game,
-                          player_id=i,
-                          current_turn=i in response['current_players'])
+                          player_id=player_ids[i],
+                          current_turn=player_ids[i] in response['current_players'])
       db.session.add(usergame)
 
     lobby.game = game
     db.session.add(lobby)
 
     return game
+
+  def __repr__(self):
+    return '<Game id=%r gametype_id=%r finished=%r>' % (
+        self.id, self.gametype_id, self.finished)
 
 class GameType(db.Model):
   __tablename__ = 'gametype'
@@ -77,6 +88,9 @@ class GameType(db.Model):
   name = db.Column(db.String(255)) # Human-readable name
   min_players = db.Column(db.Integer)
   max_players = db.Column(db.Integer)
+
+  def __repr__(self):
+    return '<GameType id=%r code=%r name=%r)>' % (self.id, self.code, self.name)
 
 def init_db():
   db.drop_all()

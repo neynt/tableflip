@@ -23,22 +23,35 @@ export default {
     },
   },
   created() {
-    this.fetchData();
+    this.startPolling();
   },
   watch: {
-    $route: 'fetchData',
+    $route: 'startPolling',
   },
   data: () => ({
     gameType: undefined,
     gameState: undefined,
   }),
   methods: {
-    fetchData() {
+    startPolling() {
       this.gameState = undefined;
+      this.fetchData();
+      if (this.pollingTimer) {
+        clearInterval(this.pollingTimer);
+      }
+      this.pollingTimer = setInterval(() => {
+        this.fetchData();
+      }, 1000);
+      this.fetchData();
+    },
+    fetchData() {
+      const expectedGameId = this.gameId;
       api.get(`games/${this.gameId}`).then((data) => {
+        if (this.gameId !== expectedGameId) return;
         this.gameType = data.type;
         this.gameState = data.view;
       }).catch(() => {
+        if (this.gameId !== expectedGameId) return;
         this.gameState = null;
       });
     },
@@ -49,6 +62,10 @@ export default {
         this.gameState = data.view;
       });
     },
+  },
+  destroyed() {
+    clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
   },
 };
 </script>

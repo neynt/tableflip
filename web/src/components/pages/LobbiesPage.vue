@@ -2,14 +2,15 @@
   .lobby-page
     h1 Lobbies
     button(@click='$router.push({ name: "CreateLobbyPage" })') Create new lobby
+    button(@click='refresh') Refresh
     br
-    Spinner(v-if='lobbies === undefined')
+    Spinner(v-if='!globals.lobbies')
     .lobbies(v-else)
-      .lobby(v-for='(lobby, idx) in lobbies')
+      .lobby(v-for='(lobby, idx) in globals.lobbies')
         .lobby-row
           .lobby-section
             h2 Game
-            .bignum {{ games[lobby.type].name }} 
+            .bignum {{ games[lobby.type] && games[lobby.type].name || lobby.type }} 
         .lobby-row
           .lobby-section
             h2 Players
@@ -24,35 +25,31 @@
           button.even(@click='viewDetails(lobby.id)') View
 </template>
 <script>
-import api from '@/api';
 import Spinner from '@/components/Spinner';
 import games from '@/games/index';
+import globals from '@/globals';
 
 export default {
   components: { Spinner },
-  computed: {
-    lobby_id() {
-      return this.route.params.id;
-    },
-  },
   data: () => ({
-    lobbies: undefined,
     games,
+    globals,
   }),
   created() {
-    this.fetchData();
+    globals.fetchLobbies();
   },
   watch: {
-    $route: 'fetchData',
+    $route() {
+      globals.fetchLobbies();
+    },
   },
   methods: {
-    fetchData() {
-      api.get('lobbies').then((data) => {
-        this.lobbies = data;
-      });
-    },
     viewDetails(id) {
       this.$router.push({ name: 'LobbyDetailPage', params: { id } });
+    },
+    refresh() {
+      globals.lobbies = null;
+      globals.fetchLobbies();
     },
   },
 };
