@@ -49,13 +49,9 @@ export default {
     lobby_id() { return this.$route.params.id; },
     current_user() { return globals.current_user; },
     in_lobby() {
-      if (!this.lobby) {
-        return false;
-      }
-      const rval = this.lobby.players.find(
+      return this.lobby && this.lobby.players.find(
         player => player.id === this.current_user.id,
-      ) !== undefined;
-      return rval;
+      );
     },
   },
   data: () => ({
