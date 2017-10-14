@@ -97,7 +97,6 @@ export default {
       });
     },
     view_game() {
-      console.log(this.lobby.game_id);
       this.$router.push({ name: 'GamePage', params: { id: this.lobby.game_id } });
     },
   },
