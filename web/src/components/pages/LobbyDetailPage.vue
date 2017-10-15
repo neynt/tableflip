@@ -111,6 +111,10 @@ export default {
       this.pollingTimer = null;
     },
   },
+  destroyed() {
+    clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
+  },
 };
 </script>
 <style>
