@@ -59,12 +59,23 @@ export default {
     games,
   }),
   created() {
-    this.fetchData();
+    this.startPolling();
   },
   watch: {
-    $route: 'fetchData',
+    $route: 'startPolling',
   },
   methods: {
+    startPolling() {
+      this.lobby = undefined;
+      this.fetchData();
+      if (this.pollingTimer) {
+        clearInterval(this.pollingTimer);
+      }
+      this.pollingTimer = setInterval(() => {
+        this.fetchData();
+      }, 1000);
+      this.fetchData();
+    },
     fetchData() {
       api.get(`lobbies/${this.lobby_id}`).then((data) => {
         this.lobby = data;
@@ -94,6 +105,10 @@ export default {
     },
     view_game() {
       this.$router.push({ name: 'GamePage', params: { id: this.lobby.game_id } });
+    },
+    destroyed() {
+      clearInterval(this.pollingTimer);
+      this.pollingTimer = null;
     },
   },
 };
