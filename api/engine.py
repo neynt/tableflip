@@ -1,7 +1,11 @@
+import os
 import requests
 
+ENGINE_PORT = os.environ.get('ENGINE_PORT', 3000)
+ENGINE_URL = 'http://localhost:{}'.format(ENGINE_PORT)
+
 def engine_query(game, endpoint, params):
-  r = requests.post('http://localhost:3000/{}/{}'.format(game, endpoint),
+  r = requests.post('{}/{}/{}'.format(ENGINE_URL, game, endpoint),
                     json=params)
   if r.status_code == requests.codes.ok:
     return r.json()

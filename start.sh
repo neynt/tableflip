@@ -21,7 +21,7 @@ case "$1" in
     ;;
 "api")
     source venv/bin/activate
-    flask run --with-threads
+    flask run --with-threads -p ${FLASK_PORT:-5000}
     ;;
 "shell")
     source venv/bin/activate
