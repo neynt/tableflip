@@ -5,7 +5,8 @@
  *   deck: [card],
  *   hands: [[card]],
  *   discards: [[card]],
- *   num_wins: [int],      // Number of wins for each player
+ *   num_wins: [int],       // Number of wins for each player
+ *   priested_player: card, // Player whose hand current_user can see due to priest
  *   num_players: int,
  *   current_player: int,
  * }
@@ -54,8 +55,8 @@ function make_deck() {
 
 function is_handmaided(player_discards) {
   return (
-    (player_discards.length > 0) &&
-    player_discards[player_discards.length - 1]
+    (player_discards.length > 0)
+    && player_discards[player_discards.length - 1] === 4
   );
 }
 
@@ -70,6 +71,7 @@ function initial_state(players) {
     discards: new Array(players).fill([]),
     num_wins: new Array(players.fill(0),      // Number of wins for each player
     num_players: players,
+    priested_player: -1,
     current_player: 0,
   }
 }
@@ -78,7 +80,13 @@ function player_view(game_state, player_id) {
   return {
     ...game_state,
     player_id,
-    hands: undefined, // Hide hands information from player
+    hands: game_state.hands.map((h, i) => {
+      if (game_state.priested_player === i && game_state.current_player === player_id) {
+        return h;
+      } else {
+        return null;
+      }
+    }), // Hide hands information from player
     hand: game_state.hands[player_id],
     player_alive: game_state.hands.map((h) => h.length > 0),
   };
@@ -90,7 +98,7 @@ function current_players(game_state) {
 
 function has_legal_action(game_view) {
   // NOT ACTUALLY USED LOL
-  return game_view.player === game_view.current_player;
+  return game_view.player_id === game_view.current_player;
 }
 
 function is_action_legal(game_view, action) {
@@ -118,7 +126,10 @@ function is_action_legal(game_view, action) {
         && !is_handmaided(game_view.discards[action.target])
       )
     )
-    && (!action.guess || action.guess > 1)
+    // If the player guessed something for the guard, it can't be a guard
+    && (!action.guess || action.guess === -1 || action.guess > 1)
+    // If the player has a 7, they can't have played 5 or 6.
+    && (!game_view.hand.includes(7) || action.card === 5 action.card === 6)
   );
 }
 
@@ -128,9 +139,65 @@ function perform_action(game_state, player_id, action) {
   if (!is_action_legal(player_view(game_state, player_id), action)) {
     throw 'Illegal action';
   }
-  switch (action.card) {
-    // TODO: Game logic
+
+  function kill(player_id) {
+    Array.prototype.push.apply(game_state.discards[action.target], game_state.hands[action.target]);
+    game_state.hands[action.target] = [];
   }
+  function discard_card(player_id) {
+  }
+  function pickup_card(player_id) {
+  }
+
+  // TODO: Discard the played card.
+  const my_discards = game_state.discards[player_id]
+  const my_hand = game_state.hands[player_id]
+  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
+
+  switch (action.card) {
+    case 1:
+      if (action.target === -1) break;
+      if (game_state.hands[action.target][0] === action.guess) {
+        // Guess was correct. Fuck 'em up, boss!
+        kill(action.target);
+      }
+      break;
+    case 2:
+      // Look at another player's hand.
+      // TODO: don't advance player id
+      game_state.priested_player = action.target;
+      break;
+    case 3:
+      // Compare hands; lower loses.
+      const my_card = game_state.hands[player_id][0];
+      const their_card = game_state.hands[action.target][0];
+      if (my_card > their_card) {
+        kill(action.target);
+      } else if (my_card < their_card) {
+        kill(player_id);
+      }
+      break;
+    case 4:
+      // Does nothing. Handmaid status is computed from discards.
+      break;
+    case 5:
+      // Force discard.
+      break;
+    case 6:
+      // Trade hands.
+      break;
+    case 7:
+      // Does nothing except force you to play it.
+      break;
+    case 8:
+      // Lose game.
+      kill(player_id);
+      break;
+    default:
+      throw 'Invalid card, not caught by is_action_legal!'
+  }
+  let next_player_id = player_id;
+  // TODO: Move on to the next player.
   return game_state;
 }
 
