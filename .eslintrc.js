@@ -38,5 +38,8 @@ module.exports = {
     'camelcase': 0,
     'no-throw-literal': 0,
     'no-bitwise': 0,
+    'indent': 0,
+    'prefer-destructuring': 0,
+    'function-paren-newline': 0,
   }
 }
