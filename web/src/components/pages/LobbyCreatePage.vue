@@ -21,6 +21,7 @@
 </template>
 <script>
 import Spinner from '@/components/Spinner';
+import api from '@/api';
 import games from '@/games/index';
 
 export default {
@@ -34,6 +35,14 @@ export default {
   }),
   methods: {
     create() {
+      if (!this.selected_type) {
+        return;
+      }
+      api.post('lobbies', {
+        type: this.selected_type,
+      }).then((data) => {
+        this.$router.push({ name: 'LobbyDetailPage', params: { id: data.id } });
+      });
     },
   },
 };
