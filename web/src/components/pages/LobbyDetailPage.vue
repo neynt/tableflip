@@ -34,7 +34,7 @@
           template(v-if='!lobby.game_id')
             button(v-if='in_lobby' @click='leave' key='leave') Leave
             button(v-else @click='join' key='join') Join
-            button(@click='start') Start
+            button(@click='start' v-if='lobby.players.length >= lobby.min_players') Start
           button(v-else @click='view_game') View Game
 </template>
 <script>
