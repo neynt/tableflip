@@ -106,10 +106,10 @@ export default {
     view_game() {
       this.$router.push({ name: 'GamePage', params: { id: this.lobby.game_id } });
     },
-    destroyed() {
-      clearInterval(this.pollingTimer);
-      this.pollingTimer = null;
-    },
+  },
+  destroyed() {
+    clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
   },
 };
 </script>
