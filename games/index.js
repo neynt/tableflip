@@ -20,4 +20,11 @@ export default {
     min_players: 2,
     max_players: 5,
   },
+  loveletter: {
+    name: 'Love Letter',
+    view: () => import('./loveletter/View'),
+    rules: () => import('./loveletter/rules'),
+    min_players: 2,
+    max_players: 5,
+  },
 };
