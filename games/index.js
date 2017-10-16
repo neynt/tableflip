@@ -22,4 +22,11 @@ export default {
     view: () => import('./hanabi/View'),
     rules: () => import('./hanabi/rules'),
   },
+  loveletter: {
+    name: 'Love Letter',
+    view: () => import('./loveletter/View'),
+    rules: () => import('./loveletter/rules'),
+    min_players: 2,
+    max_players: 5,
+  },
 };
