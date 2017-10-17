@@ -12,7 +12,8 @@
  *   }]],
  *   current_player: int,
  *   hints: int,
- *   lives: int
+ *   lives: int,
+ *   turns_remaining: int || null
  * }
  * A card is an int, 0 <= card < 5 * NUM_COLOURS, === colour * 5 + number - 1.
  * Plays is an array of size NUM_COLOURS contains the highest card played
@@ -29,7 +30,8 @@
  *   hinted: as above,
  *   current_player: as above,
  *   hints: as above,
- *   lives: as above
+ *   lives: as above,
+ *   turns_remaining: as above
  * }
  *
  * Representation of an action is either:
@@ -120,6 +122,7 @@ function initial_state(players) {
     current_player: 0,
     hints: MAX_HINTS,
     lives: START_LIVES,
+    turns_remaining: null,
   };
 }
 
@@ -142,6 +145,7 @@ function player_view(game_state, player) {
     current_player: game_state.current_player,
     hints: game_state.hints,
     lives: game_state.lives,
+    turns_remaining: game_state.turns_remaining,
   };
 }
 
@@ -155,9 +159,10 @@ function won_game(game_state) {
 }
 
 function is_game_finished(game_state) {
+  const deck_empty = (game_state.deck && game_state.deck.length === 0) ||
+    game_state.deck_size === 0;
   return game_state.lives === 0 ||
-      ((game_state.deck && game_state.deck.length === 0) ||
-          game_state.deck_size === 0) ||
+      (deck_empty && game_state.turns_remaining === 0) ||
       won_game(game_state);
 }
 
@@ -264,6 +269,10 @@ function perform_action(game_state, player, action) {
       // Check whether the play is valid.
       if (game_copy.plays[card_colour(card)] === card_number(card) - 1) {
         game_copy.plays[card_colour(card)] += 1;
+
+        if (card_number(card) === 5 && game_copy.hints < MAX_HINTS) {
+          game_copy.hints += 1;
+        }
       } else {
         game_copy.lives -= 1;
         game_copy.discards.push(card);
@@ -288,6 +297,12 @@ function perform_action(game_state, player, action) {
       }
     }
     game_copy.hints -= 1;
+  }
+
+  if (game_copy.deck.length === 0 && !game_copy.turns_remaining) {
+    game_copy.turns_remaining = game_copy.hands.length;
+  } else if (game_copy.turns_remaining) {
+    game_copy.turns_remaining -= 1;
   }
 
   game_copy.current_player = (game_copy.current_player + 1) %
