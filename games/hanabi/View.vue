@@ -6,6 +6,9 @@
       | Hints: {{ state.hints }}
       br
       | Lives: {{ state.lives }}
+      template(v-if='state.turns_remaining !== null && state.turns_remaining !== undefined')
+        br
+        | Turns Remaining: {{ state.turns_remaining }}
     .hands
       .hand(v-for='(hand, player) in state.hands')
         .row
@@ -16,7 +19,7 @@
             .number {{ number(card) || '&nbsp;' }}
             .hint(v-bind:class='colour_dict(state.hinted[player][index].colour)')
               | {{ state.hinted[player][index].number || '&nbsp;' }}
-        .row(v-if='state.player === state.current_player && player !== state.player')
+        .row(v-if='state.player === state.current_player && player !== state.player && !is_game_finished')
           .label.small Hint
           .hint(v-for='(_, colour) in state.plays'
                 v-bind:class='colour_dict(colour)'
@@ -25,7 +28,7 @@
           .hint(v-for='number in 5'
                 @click='hint(player, undefined, number)')
             | {{ number }}
-        .row(v-else-if='state.player === state.current_player')
+        .row(v-else-if='state.player === state.current_player && !is_game_finished')
           .label
           .buttons(v-for='(_, index) in hand')
             .button(@click='play(index)') Play
@@ -39,13 +42,24 @@
     .discards
       .row
         .label Discards
-        .card(v-for='card in state.discards'
+        .card(v-for='card in sorted_discards'
               v-bind:class='colour_dict(colour(card))')
           .number {{ number(card) }}
 </template>
 <script>
+import rules from './rules';
+
 export default {
   props: ['state', 'onaction'],
+  computed: {
+    is_game_finished() {
+      return rules.is_game_finished(this.state);
+    },
+    sorted_discards() {
+      const discards = this.state.discards.slice();
+      return discards.sort((a, b) => a - b);
+    },
+  },
   methods: {
     colour(card) {
       return Math.floor(card / 5);
