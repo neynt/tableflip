@@ -7,6 +7,7 @@
  *   discards: [[card]],
  *   num_wins: [int],       // Number of wins for each player
  *   priested_player: card, // Player whose hand current_user can see due to priest
+ *   log: [string],         // Array of strings describing in-game actions
  *   num_players: int,
  *   current_player: int,
  * }
@@ -14,10 +15,12 @@
  * Representation of game view:
  * {
  *   player_id: int,       // Player for which this view was created.
- *   hand: [card],
+ *   cards_left: int,      // Number of cards left in deck
+ *   hands: [[card]],      // everyone's hands; nulled out if player can't see the hand
  *   discards: [[card]],   // Cards discarded by each player
  *   player_alive: [bool], // Whether each player is still in the round.
- *   num_wins: as above,   // Take length for the number of players
+ *   log: as above,
+ *   num_wins: as above,
  *   num_players: as above,
  *   current_player: as above,
  * }
@@ -43,14 +46,31 @@
 /* "Utility Functions" */
 function make_deck() {
   const deck = [1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8];
-  // Fisher Yates shuffle
+  // Fisher-Yates shuffle
   for (let i = 1; i < deck.length; i += 1) {
     const j = Math.floor(Math.random() * (i + 1));
-    const temp = deck[j];
-    deck[j] = deck[i];
-    deck[i] = temp;
+    [deck[j], deck[i]] = [deck[i], deck[j]];
   }
   return deck;
+}
+
+function pickup_card(game_state, p_id) {
+  game_state.hands[p_id].push(game_state.deck.shift());
+}
+
+function discard_card(game_state, p_id) {
+  // Discard whatever card is in p_id's hand.
+  // Returns the discarded card.
+  const card = game_state.hands[p_id].shift();
+  game_state.discards[p_id].push(card);
+  return card;
+}
+
+function kill_player(game_state, p_id) {
+  /* eslint-disable no-param-reassign */
+  Array.prototype.push.apply(game_state.discards[p_id], game_state.hands[p_id]);
+  game_state.hands[p_id].length = 0;
+  /* eslint-enable */
 }
 
 function is_handmaided(player_discards) {
@@ -68,34 +88,52 @@ function num_wins_required(num_players) {
   throw 'Invalid number of players in num_wins_required';
 }
 
+function new_round(cur_game_state) {
+  const game_state = cur_game_state;
+  const { num_players } = game_state;
+  game_state.deck = make_deck();
+  game_state.hands = new Array(num_players);
+  for (let i = 0; i < num_players; i += 1) {
+    game_state.hands[i] = [];
+    pickup_card(game_state, i);
+  }
+  game_state.discards = new Array(num_players).fill([]);
+  game_state.priested_player = null;
+  return game_state;
+}
+
 function initial_state(players) {
   if (players < 2 || players > 4) {
     throw 'Invalid number of players';
   }
 
-  return {
-    deck: make_deck(),
-    hands: new Array(players).fill([]),
-    discards: new Array(players).fill([]),
+  const current_player = 0; // TODO: different current player?
+  const game_state = {
+    log: ['Game started.'],
     num_wins: new Array(players).fill(0), // Number of wins for each player
     num_players: players,
-    priested_player: -1,
-    current_player: 0,
+    current_player,
   };
+  new_round(game_state, current_player);
+  pickup_card(game_state, game_state.current_player);
+  return game_state;
 }
 
 function player_view(game_state, player_id) {
   return {
-    game_state,
     player_id,
-    hands: game_state.hands.map((h, i) => {
-      if (game_state.priested_player === i && game_state.current_player === player_id) {
-        return h;
-      }
-      return null;
-    }), // Hide hands information from player
-    hand: game_state.hands[player_id],
+    log: game_state.log,
+    cards_left: game_state.deck.length,
+    hands: game_state.hands.map((h, i) => h.map(c => (
+      (i === player_id)
+      || (game_state.priested_player === i && game_state.current_player === player_id)
+      ? c : null
+    ))), // Hide card information from player
+    discards: game_state.discards,
     player_alive: game_state.hands.map(h => h.length > 0),
+    num_wins: game_state.num_wins,
+    num_players: game_state.num_players,
+    current_player: game_state.current_player,
   };
 }
 
@@ -117,107 +155,30 @@ function is_action_legal(game_view, action) {
     }
   }
 
-  return (
-    game_view.player_id === game_view.current_player
-    && game_view.hand.includes(action.card)
-    && (
-      // Target is undefined...
-      !action.target
-      // Or specified as none, and everyone else is handmaided...
-      || (action.target === -1 && all_others_handmaided)
-      // Or specified, still in the game, and not handmaided.
-      || (
-        action.target < game_view.num_wins.length
-        && action.target >= 0
-        && game_view.player_alive[action.target]
-        && !is_handmaided(game_view.discards[action.target])
-      )
-    )
-    // If the player guessed something for the guard, it can't be a guard
-    && (!action.guess || action.guess === -1 || action.guess > 1)
-    // If the player has a 7, they can't have played 5 or 6.
-    && (!game_view.hand.includes(7) || action.card === 5 || action.card === 6)
-  );
-}
-
-function perform_action(old_game_state, player_id, action) {
-  // Copy game state for safety
-  const game_state = JSON.parse(JSON.stringify(old_game_state));
-  if (!is_action_legal(player_view(game_state, player_id), action)) {
-    throw 'Illegal action';
+  // Player must be current player
+  if (game_view.player_id !== game_view.current_player) return false;
+  // Player must have selected card
+  if (!game_view.hands[game_view.player_id].includes(action.card)) return false;
+  if (action.target) {
+    // Action cannot be no-target if someone isn't handmaided
+    if (action.target === -1 && !all_others_handmaided) return false;
+    // Target must be valid
+    if (!(
+      action.target >= 0
+      && action.target < game_view.num_players
+      && game_view.player_alive[action.target]
+      && !is_handmaided(game_view.discards[action.target])
+    )) return false;
   }
-
-  function kill(p_id) {
-    Array.prototype.push.apply(game_state.discards[p_id], game_state.hands[p_id]);
-    game_state.hands[p_id].length = 0;
+  if (action.guess) {
+    // Guess must be "no-guess" or on a non-guard
+    if (!(action.guess === -1 || (action.guess >= 2 && action.guess <= 8))) return false;
   }
-  function pickup_card(p_id) {
-    const card = game_state.deck.shift();
-    game_state.hands[p_id].push(card);
+  if (game_view.hands[game_view.player_id].includes(7)) {
+    // Presence of a countess means you can't play guard or king
+    if (action.card === 5 || action.card === 6) return false;
   }
-  function discard_card(p_id) {
-    // Discard whatever card is in p_id's hand.
-    const discards = game_state.discards[p_id];
-    const hand = game_state.hands[p_id];
-    discards.push(hand.shift());
-  }
-
-  // Discard the chosen card.
-  const my_discards = game_state.discards[player_id];
-  const my_hand = game_state.hands[player_id];
-  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
-
-  switch (action.card) {
-    case 1:
-      if (action.target === -1) break;
-      if (game_state.hands[action.target][0] === action.guess) {
-        // Guess was correct. Fuck 'em up, boss!
-        kill(action.target);
-      }
-      break;
-    case 2:
-      // Look at another player's hand.
-      // TODO: don't advance player id
-      game_state.priested_player = action.target;
-      break;
-    case 3: {
-      // Compare hands; lower loses.
-      const my_card = game_state.hands[player_id][0];
-      const their_card = game_state.hands[action.target][0];
-      if (my_card > their_card) {
-        kill(action.target);
-      } else if (my_card < their_card) {
-        kill(player_id);
-      }
-      break;
-    }
-    case 4:
-      // Does nothing. Handmaid status is computed from discards.
-      break;
-    case 5:
-      // Force discard.
-      discard_card(action.target);
-      pickup_card(action.target);
-      break;
-    case 6:
-      // Trade hands.
-      break;
-    case 7:
-      // Does nothing except force you to play it.
-      break;
-    case 8:
-      // Lose game.
-      kill(player_id);
-      break;
-    default:
-      throw 'Invalid card, not caught by is_action_legal!';
-  }
-  let next_player_id = (player_id + 1) % game_state.num_players;
-  // TODO: Move on to the next player.
-  while (game_state.hands[next_player_id].length === 0) {
-    next_player_id = (next_player_id + 1) % game_state.num_players;
-  }
-  return game_state;
+  return true;
 }
 
 function winners(game_state) {
@@ -231,6 +192,123 @@ function winners(game_state) {
 
 function is_game_finished(game_state) {
   return winners(game_state).length > 0;
+}
+
+function perform_action(old_game_state, player_id, action) {
+  // Copy game state for safety
+  const game_state = JSON.parse(JSON.stringify(old_game_state));
+  if (!is_action_legal(player_view(game_state, player_id), action)) {
+    throw 'Illegal action';
+  }
+
+
+  // Discard the chosen card.
+  const my_discards = game_state.discards[player_id];
+  const my_hand = game_state.hands[player_id];
+  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
+
+  switch (action.card) {
+    case 1:
+      if (action.target === -1) {
+        game_state.log.push(
+          `Player ${player_id} discards a 1.`);
+        break;
+      }
+      if (game_state.hands[action.target].includes(action.guess)) {
+        // Guess was correct. Fuck 'em up, boss!
+        game_state.log.push(
+          `Player ${player_id} guesses correctly ` +
+          `that Player ${action.target} has a ${action.guess}.`);
+        kill_player(game_state, action.target);
+      } else {
+        game_state.log.push(
+          `Player ${player_id} guesses incorrectly ` +
+          `that Player ${action.target} has a ${action.guess}.`);
+      }
+      break;
+    case 2:
+      // Look at another player's hand.
+      // TODO: don't advance player id
+      game_state.priested_player = action.target;
+      game_state.log.push(
+        `Player ${player_id} uses a 2 to see Player ${action.target}'s hand.`);
+      break;
+    case 3: {
+      // Compare hands; lower loses.
+      const my_card = game_state.hands[player_id][0];
+      const their_card = game_state.hands[action.target][0];
+      if (my_card > their_card) {
+        kill_player(game_state, action.target);
+        game_state.log.push(
+          `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
+          `Player ${player_id} is defeated.`);
+      } else if (my_card < their_card) {
+        kill_player(game_state, player_id);
+        game_state.log.push(
+          `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
+          `Player ${action.target} is defeated.`);
+      } else {
+        game_state.log.push(
+          `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. They are equal.`);
+      }
+      break;
+    }
+    case 4:
+      // Does nothing. Handmaid status is computed from discards.
+      game_state.log.push(`Player ${player_id} plays a 4.`);
+      break;
+    case 5: {
+      // Force discard.
+      const discarded_card = discard_card(game_state, action.target);
+      if (discarded_card === 8) {
+        kill_player(game_state, action.target);
+      } else {
+        pickup_card(game_state, action.target);
+      }
+      game_state.log.push(
+        `Player ${player_id} plays a 5, forcing Player ${action.target} ` +
+        `to discard their ${discarded_card}.`);
+      break;
+    }
+    case 6: {
+      // Trade hands.
+      const temp = game_state.hands[player_id];
+      game_state.hands[player_id] = game_state.hands[action.target];
+      game_state.hands[action.target] = temp;
+      game_state.log.push(
+        `Player ${player_id} plays a 6, trading hands with Player ${action.target}.`);
+      break;
+    }
+    case 7:
+      // Does nothing except force you to play it.
+      game_state.log.push(`Player ${player_id} plays a 7. Ooooh.`);
+      break;
+    case 8:
+      // Lose game.
+      game_state.log.push(`Player ${player_id} plays their Princess, losing the game.`);
+      kill_player(game_state, player_id);
+      break;
+    default:
+      throw 'Invalid card, not caught by is_action_legal!';
+  }
+  let next_player_id = (player_id + 1) % game_state.num_players;
+  // TODO: Move on to the next player.
+  while (game_state.hands[next_player_id].length === 0 && next_player_id !== player_id) {
+    next_player_id = (next_player_id + 1) % game_state.num_players;
+  }
+  if (game_state.hands.filter(h => h.length > 0).length === 1) {
+    // Only one player left. They win!
+    game_state.num_wins[next_player_id] += 1;
+    if (!is_game_finished(game_state)) {
+      game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} wins the round!`;
+      new_round(game_state);
+    } else {
+      game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} wins the game!`;
+    }
+  }
+  game_state.current_player = next_player_id;
+  pickup_card(game_state, game_state.current_player);
+  return game_state;
 }
 
 module.exports = {
