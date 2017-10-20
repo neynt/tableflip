@@ -210,8 +210,7 @@ function perform_action(old_game_state, player_id, action) {
   switch (action.card) {
     case 1:
       if (action.target === -1) {
-        game_state.log.push(
-          `Player ${player_id} discards a 1.`);
+        game_state.log.push(`Player ${player_id} discards a 1.`);
         break;
       }
       if (game_state.hands[action.target].includes(action.guess)) {
@@ -228,7 +227,7 @@ function perform_action(old_game_state, player_id, action) {
       break;
     case 2:
       // Look at another player's hand.
-      // TODO: don't advance player id
+      // TODO: Make this work. Probably requires two consecutive turns.
       game_state.priested_player = action.target;
       game_state.log.push(
         `Player ${player_id} uses a 2 to see Player ${action.target}'s hand.`);
@@ -292,7 +291,6 @@ function perform_action(old_game_state, player_id, action) {
       throw 'Invalid card, not caught by is_action_legal!';
   }
   let next_player_id = (player_id + 1) % game_state.num_players;
-  // TODO: Move on to the next player.
   while (game_state.hands[next_player_id].length === 0 && next_player_id !== player_id) {
     next_player_id = (next_player_id + 1) % game_state.num_players;
   }
@@ -308,6 +306,7 @@ function perform_action(old_game_state, player_id, action) {
   }
   game_state.current_player = next_player_id;
   pickup_card(game_state, game_state.current_player);
+  // TODO: If no more cards in deck, player with highest card wins the round.
   return game_state;
 }
 
