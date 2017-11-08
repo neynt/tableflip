@@ -21,14 +21,14 @@ case "$1" in
     ;;
 "api")
     source venv/bin/activate
-    flask run --with-threads
+    exec flask run --with-threads -p ${FLASK_PORT:-5000}
     ;;
 "shell")
     source venv/bin/activate
     flask shell
     ;;
 "engine")
-    node engine/index.js
+    exec node engine/index.js
     ;;
 "psql")
     psql -h utena.neynt.ca -U tableflip_staging tableflip_staging
