@@ -29,6 +29,8 @@ STATUS_ACTIVE_SCRIPT="$EXECUTABLES_DIR/status_active.sh"
 
 PING_INTERVAL=5
 
+log "HIVEMIND INITIALIZING."
+
 while true
 do
     my_role="$(cat $STATUS_PATH)"
@@ -115,3 +117,5 @@ do
 
     sleep $PING_INTERVAL
 done
+
+log "HIVEMIND SHUTTING DOWN."
