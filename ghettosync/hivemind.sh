@@ -8,7 +8,7 @@ abort() {
 }
 
 log() {
-    echo "$(date --iso-8601=seconds): $@" >> /var/log/ghettosync/hivemind.log
+    echo "$(date --iso-8601=seconds) hivemind: $@" >> /var/log/ghettosync/ghettosync.log
 }
 
 AM_TRUE_MASTER=1
