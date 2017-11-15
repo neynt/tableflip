@@ -8,7 +8,7 @@ abort() {
 }
 
 log() {
-    echo "$(date --iso-8601=seconds): $@" >> /var/log/ghettosync/status_standby.log
+    echo "$(date --iso-8601=seconds) status_standby: $@" >> /var/log/ghettosync/ghettosync.log
 }
 
 STATUS_FILE="ghettosync_status"
