@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 app_name = 'tableflip'
 app = Flask(app_name)
@@ -15,5 +16,7 @@ app.secret_key = os.environ.get('SECRET_KEY')
 
 CORS(app, supports_credentials=True)
 db = SQLAlchemy(app)
+
+bcrypt = Bcrypt(app)
 
 from api import models, views
