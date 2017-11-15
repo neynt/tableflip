@@ -8,6 +8,10 @@ abort() {
 }
 
 log() {
+    if [ "$(echo "$(du -h /var/log/ghettosync/ghettosync.log | awk '{print $1;}' | sed 's/.$//') > 100" | bc)" = "1" ]; then
+        echo "" > /var/log/ghettosync/ghettosync.log
+        echo "$(date --iso-8601=seconds) hivemind: FLUSHED THIS LOG" >> /var/log/ghettosync/ghettosync.log
+    fi
     echo "$(date --iso-8601=seconds) hivemind: $@" >> /var/log/ghettosync/ghettosync.log
 }
 
@@ -28,17 +32,28 @@ STATUS_STANDBY_SCRIPT="$EXECUTABLES_DIR/status_standby.sh"
 STATUS_ACTIVE_SCRIPT="$EXECUTABLES_DIR/status_active.sh"
 
 PING_INTERVAL=5
+CURL_TIMEOUT=20
 
 log "HIVEMIND INITIALIZING."
 
+if [ ! -f "$STATUS_PATH" ]; then
+    log "Recreating missing status file."
+    echo "ACTIVE" > $STATUS_PATH
+fi
+
+if [ ! -f "$ROLE_PATH" ]; then
+    log "Recreating missing role file."
+    echo "SLAVE" > $ROLE_PATH
+fi
+
 while true
 do
-    my_role="$(cat $STATUS_PATH)"
-    my_status="$(cat $ROLE_PATH)"
+    my_status="$(cat $STATUS_PATH)"
+    my_role="$(cat $ROLE_PATH)"
     # Our status should always be "active" by the end of the full loop
 
-    partner_status="$(curl http://$PARTNER_IP/$STATUS_FILE)"
-    partner_role="$(curl http://$PARTNER_IP/$ROLE_FILE)"
+    partner_status="$(timeout ${CURL_TIMEOUT}s curl http://$PARTNER_IP/$STATUS_FILE || echo "404")"
+    partner_role="$(timeout ${CURL_TIMEOUT}s curl http://$PARTNER_IP/$ROLE_FILE || echo "404")"
 
     if echo $partner_status | grep --silent "404"; then
         partner_status="404"
@@ -57,8 +72,8 @@ do
                 $STATUS_STANDBY_SCRIPT
                 while true
                 do
-                    partner_role="$(curl http://$PARTNER_IP/$ROLE_FILE)"
-                    partner_status="$(curl http://$PARTNER_IP/$STATUS_FILE)"
+                    partner_role="$(timeout ${CURL_TIMEOUT}s curl http://$PARTNER_IP/$ROLE_FILE || echo "404")"
+                    partner_status="$(timeout ${CURL_TIMEOUT}s curl http://$PARTNER_IP/$STATUS_FILE || echo "404")"
 
                     log "(Waiting) This is: $my_role ($my_status); partner: $partner_role ($partner_status)"
 
@@ -82,6 +97,7 @@ do
                 log "We must submit to the true master."
 
                 $STATUS_STANDBY_SCRIPT
+                #echo "SLAVE" > $ROLE_PATH
                 $ROLE_SLAVE_SCRIPT
                 $STATUS_ACTIVE_SCRIPT
 
@@ -97,6 +113,7 @@ do
             if [ $AM_TRUE_MASTER -eq 1 ]; then
                 log "We are the true master, and will assume the role."
                 $STATUS_STANDBY_SCRIPT
+                #echo "MASTER" > $ROLE_PATH
                 $ROLE_MASTER_SCRIPT
                 $STATUS_ACTIVE_SCRIPT
             elif [ $AM_TRUE_MASTER -eq 0 ]; then
@@ -108,6 +125,7 @@ do
             log "Our master has died. We become the master."
 
             $STATUS_STANDBY_SCRIPT
+            #echo "MASTER" > $ROLE_PATH
             $ROLE_MASTER_SCRIPT
             $STATUS_ACTIVE_SCRIPT
 
