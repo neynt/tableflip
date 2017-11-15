@@ -12,8 +12,8 @@
     .hands
       .hand(v-for='(hand, player) in state.hands')
         .row
-          .label(v-if='player === state.player') You
-          .label(v-else) Player {{ player }}
+          .label(v-if='player === state.player') {{ username(player) }} (You)
+          .label(v-else) {{ username(player) }}
           .card(v-for='(card, index) in hand'
                 v-bind:class='colour_dict(colour(card))')
             .number {{ number(card) || '&nbsp;' }}
@@ -50,7 +50,7 @@
 import rules from './rules';
 
 export default {
-  props: ['state', 'onaction'],
+  props: ['state', 'players', 'onaction'],
   computed: {
     is_game_finished() {
       return rules.is_game_finished(this.state);
@@ -95,6 +95,10 @@ export default {
         colour,
         number,
       });
+    },
+    username(player_id) {
+      const player = this.players.find(p => p.player_id === player_id);
+      return player && player.username;
     },
   },
 };
