@@ -1,6 +1,6 @@
 from flask import abort, jsonify, g, request, session
-
-from api import app, engine, models, db
+from api import app, engine, models, db, bcrypt
+import base64
 
 version = 1.0
 api_endpoint = '/tableflip/api/v{}/'.format(version)
@@ -71,8 +71,8 @@ def register():
   try:
     data = request.get_json()
     username = data['username']
-    password = 'bar' # TODO: hash and store actual password
-    new_user = models.User(username=username, password=password)
+    password = bcrypt.generate_password_hash(data['password'])
+    new_user = models.User(username=username, password=base64.b64encode(password).decode('utf-8'))
     db.session.add(new_user)
     db.session.commit()
 
@@ -89,7 +89,7 @@ def login():
   username = data['username']
   user = models.User.query.filter_by(username=username).first()
 
-  if user: # TODO: verify password
+  if user and bcrypt.check_password_hash(base64.b64decode(user.password.encode('utf-8')), data['password']):
     session['user_id'] = user.id
     session.permanent = True
     return jsonify({'success': True, 'user': user_view(user)})
