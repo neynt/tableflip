@@ -6,7 +6,7 @@
  *   hands: [[card]],
  *   discards: [[card]],
  *   num_wins: [int],       // Number of wins for each player
- *   priested_player: card, // Player whose hand current_player can see due to priest
+ *   priested_player: int,  // Player whose hand current_player can see due to priest
  *   log: [string],         // Array of strings describing in-game actions
  *   num_players: int,
  *   current_player: int,
@@ -160,13 +160,13 @@ function is_action_legal(game_view, action) {
   if (game_view.player_id !== game_view.current_player) return false;
   // If the player just played a priest, they're pressing "continue" and their
   // action will be rewritten to continue the game. All other bets are off.
-  if (game_view.priested_player) return true;
+  if (game_view.priested_player != null) return true;
   // Player must have selected card
   if (!game_view.hands[game_view.player_id].includes(action.card)) return false;
   if (action.target) {
     // Action cannot be no-target if someone isn't handmaided
     if (action.target === -1 && !all_others_handmaided) return false;
-    // Target must be valid
+    // Target must be valid, alive, and not handmaided
     if (!(
       action.target >= 0
       && action.target < game_view.num_players
@@ -202,6 +202,12 @@ function play_card(game_state, player_id, action) {
   // Mutates game_state.
   // Returns: true if we should advance the turn.
   /* eslint-disable no-param-reassign */
+
+  // Discard the chosen card.
+  const my_discards = game_state.discards[player_id];
+  const my_hand = game_state.hands[player_id];
+  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
+
   switch (action.card) {
     case 1:
       if (action.target === -1) {
@@ -266,9 +272,11 @@ function play_card(game_state, player_id, action) {
     }
     case 6: {
       // Trade hands.
-      const temp = game_state.hands[player_id];
-      game_state.hands[player_id] = game_state.hands[action.target];
-      game_state.hands[action.target] = temp;
+      const their_hand = game_state.hands[action.target];
+      const my_card = my_hand.pop();
+      const their_card = their_hand.pop();
+      my_hand.push(their_card);
+      their_hand.push(my_card);
       game_state.log.push(
         `Player ${player_id} plays a 6, trading hands with Player ${action.target}.`);
       break;
@@ -296,42 +304,60 @@ function unpriest(game_state, player_id, action) {
   game_state.priested_player = null;
 }
 
+function add_point(game_state, winning_player_id) {
+  // Mutates game_state.
+  /* eslint-disable no-param-reassign */
+  game_state.num_wins[winning_player_id] += 1;
+  if (!is_game_finished(game_state)) {
+    new_round(game_state);
+  } else {
+    game_state.log[game_state.log.length - 1] += ` Player ${winning_player_id} wins the game!`;
+  }
+}
+
 function perform_action(old_game_state, player_id, action) {
   // Copy game state for safety
   const game_state = JSON.parse(JSON.stringify(old_game_state));
   if (!is_action_legal(player_view(game_state, player_id), action)) {
     throw 'Illegal action';
+  } else if (is_game_finished(game_state)) {
+    throw 'Game finished';
   }
 
   // If priested: Turn continues next time priesting player makes any action
-  if (game_state.priested_player) {
+  if (game_state.priested_player != null) {
     unpriest(game_state, player_id, action);
   } else if (!play_card(game_state, player_id, action)) {
     return game_state;
   }
 
-  // Discard the chosen card.
-  const my_discards = game_state.discards[player_id];
-  const my_hand = game_state.hands[player_id];
-  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
-
   let next_player_id = (player_id + 1) % game_state.num_players;
   while (game_state.hands[next_player_id].length === 0 && next_player_id !== player_id) {
     next_player_id = (next_player_id + 1) % game_state.num_players;
   }
+  console.log(game_state.hands);
+  console.log(game_state.deck);
   if (game_state.hands.filter(h => h.length > 0).length === 1) {
     // Only one player left. They win!
-    game_state.num_wins[next_player_id] += 1;
-    if (!is_game_finished(game_state)) {
-      game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} wins the round!`;
-      new_round(game_state);
-    } else {
-      game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} wins the game!`;
+    game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} is the last one standing and wins the round!`;
+    add_point(game_state, next_player_id);
+  } else if (game_state.deck.length <= 1) {
+    // If there are 0 or 1 cards remaining in the deck, the player with the
+    // highest card wins the round.
+    let winner_id = null;
+    let best_card = -1;
+    for (let i = 0; i < game_state.num_players; i += 1) {
+      const card = (game_state.hands[i].length > 0 && game_state.hands[i][0]) || -1;
+      if (card > best_card) {
+        winner_id = i;
+        best_card = card;
+      }
     }
+    game_state.log[game_state.log.length - 1] += ` Player ${winner_id} has the highest card (${best_card}) and wins the round!`;
+    add_point(game_state, winner_id);
   }
   game_state.current_player = next_player_id;
   pickup_card(game_state, game_state.current_player);
-  // TODO: If no more cards in deck, player with highest card wins the round.
   return game_state;
 }
 
