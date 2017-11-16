@@ -335,8 +335,6 @@ function perform_action(old_game_state, player_id, action) {
   while (game_state.hands[next_player_id].length === 0 && next_player_id !== player_id) {
     next_player_id = (next_player_id + 1) % game_state.num_players;
   }
-  console.log(game_state.hands);
-  console.log(game_state.deck);
   if (game_state.hands.filter(h => h.length > 0).length === 1) {
     // Only one player left. They win!
     game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} is the last one standing and wins the round!`;
