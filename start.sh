@@ -1,6 +1,19 @@
 #!/bin/bash
 export FLASK_APP="api/__init__.py"
+
+role_endpoint="ghettosync_role"
+db_ip1="104.238.128.152"
+db_ip2="45.77.147.104"
+db_url="http://${db_ip1}/${role_endpoint}"
+
 export DATABASE_URL="postgresql://localhost/tableflip"
+# curl the website to check which machine is the master
+if [[ $(curl ${db_url}) == "*MASTER*" ]]; then
+    echo "---> MASTER"
+else
+    echo "---> SLAVE"
+fi
+
 PG_LOG="postgres.log"
 [[ -f .env ]] && export $(cat .env | xargs)
 
