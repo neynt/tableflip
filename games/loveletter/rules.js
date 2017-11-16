@@ -6,7 +6,7 @@
  *   hands: [[card]],
  *   discards: [[card]],
  *   num_wins: [int],       // Number of wins for each player
- *   priested_player: card, // Player whose hand current_user can see due to priest
+ *   priested_player: card, // Player whose hand current_player can see due to priest
  *   log: [string],         // Array of strings describing in-game actions
  *   num_players: int,
  *   current_player: int,
@@ -133,6 +133,7 @@ function player_view(game_state, player_id) {
     player_alive: game_state.hands.map(h => h.length > 0),
     num_wins: game_state.num_wins,
     num_players: game_state.num_players,
+    priested_player: game_state.priested_player,
     current_player: game_state.current_player,
   };
 }
@@ -157,6 +158,9 @@ function is_action_legal(game_view, action) {
 
   // Player must be current player
   if (game_view.player_id !== game_view.current_player) return false;
+  // If the player just played a priest, they're pressing "continue" and their
+  // action will be rewritten to continue the game. All other bets are off.
+  if (game_view.priested_player) return true;
   // Player must have selected card
   if (!game_view.hands[game_view.player_id].includes(action.card)) return false;
   if (action.target) {
@@ -194,19 +198,10 @@ function is_game_finished(game_state) {
   return winners(game_state).length > 0;
 }
 
-function perform_action(old_game_state, player_id, action) {
-  // Copy game state for safety
-  const game_state = JSON.parse(JSON.stringify(old_game_state));
-  if (!is_action_legal(player_view(game_state, player_id), action)) {
-    throw 'Illegal action';
-  }
-
-
-  // Discard the chosen card.
-  const my_discards = game_state.discards[player_id];
-  const my_hand = game_state.hands[player_id];
-  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
-
+function play_card(game_state, player_id, action) {
+  // Mutates game_state.
+  // Returns: true if we should advance the turn.
+  /* eslint-disable no-param-reassign */
   switch (action.card) {
     case 1:
       if (action.target === -1) {
@@ -227,11 +222,11 @@ function perform_action(old_game_state, player_id, action) {
       break;
     case 2:
       // Look at another player's hand.
-      // TODO: Make this work. Probably requires two consecutive turns.
       game_state.priested_player = action.target;
       game_state.log.push(
         `Player ${player_id} uses a 2 to see Player ${action.target}'s hand.`);
-      break;
+      // Does not advance the turn. Continued at unpriest().
+      return false;
     case 3: {
       // Compare hands; lower loses.
       const my_card = game_state.hands[player_id][0];
@@ -290,6 +285,36 @@ function perform_action(old_game_state, player_id, action) {
     default:
       throw 'Invalid card, not caught by is_action_legal!';
   }
+  return true;
+}
+
+function unpriest(game_state, player_id, action) {
+  // Mutates game_state and action.
+  /* eslint-disable no-param-reassign */
+  action.card = 2;
+  action.target = game_state.priested_player;
+  game_state.priested_player = null;
+}
+
+function perform_action(old_game_state, player_id, action) {
+  // Copy game state for safety
+  const game_state = JSON.parse(JSON.stringify(old_game_state));
+  if (!is_action_legal(player_view(game_state, player_id), action)) {
+    throw 'Illegal action';
+  }
+
+  // If priested: Turn continues next time priesting player makes any action
+  if (game_state.priested_player) {
+    unpriest(game_state, player_id, action);
+  } else if (!play_card(game_state, player_id, action)) {
+    return game_state;
+  }
+
+  // Discard the chosen card.
+  const my_discards = game_state.discards[player_id];
+  const my_hand = game_state.hands[player_id];
+  my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
+
   let next_player_id = (player_id + 1) % game_state.num_players;
   while (game_state.hands[next_player_id].length === 0 && next_player_id !== player_id) {
     next_player_id = (next_player_id + 1) % game_state.num_players;

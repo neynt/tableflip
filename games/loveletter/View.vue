@@ -25,7 +25,7 @@
           .card.card-active(
             v-for='(card, i) in hand'
             v-if='card'
-            :class='{ "card-picked": i === card_idx }'
+            :class='{ "card-picked": p_id === state.player_id && i === card_idx }'
             @click='pickCard(card, i)'
           )
             | {{ card }}
@@ -38,6 +38,13 @@
           button(v-for='c in [2, 3, 4, 5, 6, 7, 8]' @click='pickGuess(c)')
             span(v-if='c === card' style='font-weight: bold') {{ c }}
             span(v-else) {{ c }}
+
+        // fully trust the server to do the right thing
+        button(
+          v-if='state.current_player === state.player_id && p_id === state.priested_player'
+          @click='submitMove()'
+        ) Continue
+
 </template>
 <script>
 export default {
