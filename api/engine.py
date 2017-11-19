@@ -4,6 +4,13 @@ import requests
 ENGINE_PORT = os.environ.get('ENGINE_PORT', 3000)
 ENGINE_URL = 'http://localhost:{}'.format(ENGINE_PORT)
 
+def game_types():
+  r = requests.get('{}/types'.format(ENGINE_URL))
+  if r.status_code == requests.codes.ok:
+    return r.json()
+  else:
+    raise Exception(r.json()['error'])
+
 def engine_query(game, endpoint, params):
   r = requests.post('{}/{}/{}'.format(ENGINE_URL, game, endpoint),
                     json=params)

@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
+var game_types = require('../games/nodeindex.js');
 
 var gameRouter = express.Router();
 
@@ -124,6 +125,9 @@ gameRouter.route('/:game/info').post(function(req, res) {
   }
 });
 
+app.get('/types', function(req, res) {
+  res.send(game_types);
+});
 app.use(bodyParser.json());
 app.use('/', gameRouter);
 

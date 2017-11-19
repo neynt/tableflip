@@ -32,7 +32,7 @@
         }'
       )
     .winner(v-if='state.winner != -1')
-      | Winner is {{ username(state.current_player) }}
+      | Winner is {{ username(state.winner) }}
       br
       .cell(
         :class='{ \
