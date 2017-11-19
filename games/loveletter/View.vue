@@ -63,7 +63,7 @@ export default {
     latest_message() {
       let message = this.state.log[this.state.log.length - 1];
       for (let i = 0; i < this.state.num_players; i += 1) {
-        message = message.replace(`Player ${i}`, this.username(i));
+        message = message.replace(new RegExp(`Player ${i}`, 'g'), this.username(i));
       }
       return message;
     },
