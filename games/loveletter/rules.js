@@ -163,7 +163,7 @@ function is_action_legal(game_view, action) {
   if (game_view.priested_player != null) return true;
   // Player must have selected card
   if (!game_view.hands[game_view.player_id].includes(action.card)) return false;
-  if (action.target) {
+  if (action.target !== undefined) {
     // Action cannot be no-target if someone isn't handmaided
     if (action.target === -1 && !all_others_handmaided) return false;
     // Target must be valid, alive, and not handmaided
@@ -241,12 +241,12 @@ function play_card(game_state, player_id, action) {
         kill_player(game_state, action.target);
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
-          `Player ${player_id} is defeated.`);
+          `Player ${action.target} is defeated.`);
       } else if (my_card < their_card) {
         kill_player(game_state, player_id);
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
-          `Player ${action.target} is defeated.`);
+          `Player ${player_id} is defeated.`);
       } else {
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. They are equal.`);
