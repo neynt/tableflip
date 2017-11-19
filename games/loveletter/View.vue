@@ -1,10 +1,10 @@
 <template lang='pug'>
   .loveletter-game
-    h2 {{ state.log[state.log.length - 1] }}
+    h2 {{ latest_message }}
     .players
       .player(v-for='(hand, p_id) in state.hands')
         h2(:class='{ accent: p_id === state.current_player }')
-          | Player {{ p_id + 0 }}
+          | {{ username(p_id) }}
           span(v-if='p_id === state.player_id')  (you)
           button(
             v-if='needs_target'
@@ -48,7 +48,7 @@
 </template>
 <script>
 export default {
-  props: ['state', 'onaction'],
+  props: ['state', 'players', 'onaction'],
   data() {
     return {
       card_idx: null, // For proper display in case player has two of the same card
@@ -59,7 +59,20 @@ export default {
       guess: null,
     };
   },
+  computed: {
+    latest_message() {
+      let message = this.state.log[this.state.log.length - 1];
+      for (let i = 0; i < this.state.num_players; i += 1) {
+        message = message.replace(`Player ${i}`, this.username(i));
+      }
+      return message;
+    },
+  },
   methods: {
+    username(player_id) {
+      const player = this.players.find(p => p.player_id === player_id);
+      return player && player.username;
+    },
     submitMove() {
       const action = { card: this.card };
       if (this.needs_target) action.target = this.target;
