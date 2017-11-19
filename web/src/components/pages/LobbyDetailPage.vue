@@ -16,10 +16,10 @@
             .bignum {{ lobby.players.length }}
           .lobby-section
             h2 Required players
-            .bignum(v-if='lobby.min_players === lobby.max_players')
-              | {{ lobby.min_players }}
+            .bignum(v-if='games[lobby.type].min_players === games[lobby.type].max_players')
+              | {{ games[lobby.type].min_players }}
             .bignum(v-else)
-              | {{ lobby.min_players }} – {{ lobby.max_players }}
+              | {{ games[lobby.type].min_players }} – {{ games[lobby.type].max_players }}
         .lobby-row
           .lobby-section
             h2 Current players
@@ -34,7 +34,7 @@
           template(v-if='!lobby.game_id')
             button(v-if='in_lobby' @click='leave' key='leave') Leave
             button(v-else @click='join' key='join') Join
-            button(@click='start' v-if='lobby.players.length >= lobby.min_players') Start
+            button(@click='start' v-if='lobby.players.length >= games[lobby.type].min_players') Start
           button(v-else @click='view_game') View Game
 </template>
 <script>
