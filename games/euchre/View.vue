@@ -41,32 +41,32 @@
           )
           text(x='25' y='32') {{ value(play) }}
           text(x='25' y='60') {{ suit(cardSuit(play)) }}
-        svg(v-if='i === state.current_player' x='150' y='10' width='40px' height='40px'
-            viewBox='0 0 100 100' preserveAspectRatio='xMidYMid' style='background: none;')
-          g(transform='rotate(0 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.875s' repeatCount='indefinite')
-          g(transform='rotate(45 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.75s' repeatCount='indefinite')
-          g(transform='rotate(90 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.625s' repeatCount='indefinite')
-          g(transform='rotate(135 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.5s' repeatCount='indefinite')
-          g(transform='rotate(180 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.375s' repeatCount='indefinite')
-          g(transform='rotate(225 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.25s' repeatCount='indefinite')
-          g(transform='rotate(270 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='-0.125s' repeatCount='indefinite')
-          g(transform='rotate(315 50 50)')
-            rect(x='47' y='24' rx='9.4' ry='4.8' width='6' height='12' fill='#222222')
-              animate(attributeName='opacity' values='1;0' times='0;1' dur='1s' begin='0s' repeatCount='indefinite')
+        g(v-if='i === state.current_player')
+          <svg x='150' y='10' width="40px" height="40px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" style="background: none;"><g transform="rotate(0 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(60 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(120 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(180 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(240 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(300 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animate>
+            </rect>
+          </g></svg>
       text(v-if='state.stage === 4' x='300' y='300' font-size='50px' text-anchor='middle'
            v-bind:class='[suitClass(state.trump)]') {{ suit(state.trump) }}
       text(x='20' y='80' font-size='25px' fill='#222') North/South: {{ state.scores[0] }}
