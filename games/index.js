@@ -23,17 +23,17 @@ export default {
     rules: () => import('./hanabi/rules'),
   },
   loveletter: {
-    name: 'Love Letter',
+    name: games.loveletter.name,
+    min_players: games.loveletter.min_players,
+    max_players: games.loveletter.max_players,
     view: () => import('./loveletter/View'),
     rules: () => import('./loveletter/rules'),
-    min_players: 2,
-    max_players: 5,
   },
   euchre: {
-    name: 'Euchre',
+    name: games.euchre.name,
+    min_players: games.euchre.min_players,
+    max_players: games.euchre.max_players,
     view: () => import('./euchre/View'),
     rules: () => import('./euchre/rules'),
-    min_players: 4,
-    max_players: 4,
   },
 };
