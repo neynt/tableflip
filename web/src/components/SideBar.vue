@@ -1,6 +1,6 @@
 <template lang='pug'>
   div
-    h1
+    h1.logo(@click='router.push({ name: "IndexPage" })')
       span.accent(style='font-size: 60%') ┻━┻
       | Tableflip
     div(v-if='globals.current_user === null')
@@ -12,8 +12,6 @@
       // Logged in
       p Logged in as {{ globals.current_user.username }}
       a(v-on:click='signout') Sign out
-      br
-      router-link(:to="{ name: 'IndexPage' }") Dashboard
       br
       router-link(:to="{ name: 'LobbyPage' }") Lobbies
       h2 Active games
@@ -71,6 +69,7 @@ export default {
   },
   data: () => ({
     globals,
+    router,
   }),
   methods: {
     signout: () => {
@@ -83,4 +82,7 @@ export default {
 };
 </script>
 <style>
+.logo:hover {
+  cursor: pointer;
+}
 </style>
