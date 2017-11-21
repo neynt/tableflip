@@ -19,8 +19,6 @@ TRIGGER_FILE="/tmp/postgresql.trigger.5432"
 VAR_MAIN="/var/lib/postgresql/10/main"
 ETC_MAIN="/etc/postgresql/10/main"
 
-REPUSER_PASSWORD="postgres_ec0nomy"
-
 PARTNER_IP="45.77.147.104"
 PARTNER_IP_FULL="45.77.147.104/23"
 log "role_slave starting..."
