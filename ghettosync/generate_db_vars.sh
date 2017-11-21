@@ -15,10 +15,12 @@ PING_INTERVAL=5
 
 ROLE_FILE="ghettosync_role"
 
+TIMEOUT_CMD="${TIMEOUT_CMD:-timeout}"
+
 while true
 do
-    DB1_ROLE="$(timeout ${CURL_TIMEOUT}s curl http://$DB1/$ROLE_FILE || echo "404")"
-    DB2_ROLE="$(timeout ${CURL_TIMEOUT}s curl http://$DB2/$ROLE_FILE || echo "404")"
+    DB1_ROLE="$($TIMEOUT_CMD ${CURL_TIMEOUT}s curl http://$DB1/$ROLE_FILE || echo "404")"
+    DB2_ROLE="$($TIMEOUT_CMD ${CURL_TIMEOUT}s curl http://$DB2/$ROLE_FILE || echo "404")"
 
     if echo "$DB1_ROLE" | grep --silent "404"; then
         DB1_ROLE="404"
