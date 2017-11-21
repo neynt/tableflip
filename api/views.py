@@ -1,6 +1,6 @@
 from flask import abort, jsonify, g, request, session
-
-from api import app, engine, models, db
+from api import app, engine, models, db, bcrypt
+import base64
 
 version = 1.0
 api_endpoint = '/tableflip/api/v{}/'.format(version)
@@ -21,9 +21,7 @@ def user_view(user, player_id=None):
 def lobby_view(lobby):
   obj = {
     "id": lobby.id,
-    "type": lobby.gametype.code,
-    "min_players": lobby.gametype.min_players,
-    "max_players": lobby.gametype.max_players,
+    "type": lobby.gametype,
     "players": [user_view(lobbygame.user) for lobbygame in lobby.users]
   }
   if lobby.game_id is not None:
@@ -33,7 +31,7 @@ def lobby_view(lobby):
 def game_view(game, include_view=False, player_id=-1):
   obj = {
     "id": game.id,
-    "type": game.gametype.code,
+    "type": game.gametype,
     "finished": game.finished,
     "players": [user_view(usergame.user, usergame.player_id)
                 for usergame in game.users],
@@ -41,7 +39,7 @@ def game_view(game, include_view=False, player_id=-1):
                 for usergame in game.users if usergame.winner]
   }
   if include_view:
-    obj["view"] = engine.player_view(game.gametype.code, game.state, player_id)
+    obj["view"] = engine.player_view(game.gametype, game.state, player_id)
   return obj
 
 def game_type_view(game_type):
@@ -91,8 +89,8 @@ def register():
   try:
     data = request.get_json()
     username = data['username']
-    password = 'bar' # TODO: hash and store actual password
-    new_user = models.User(username=username, password=password)
+    password = bcrypt.generate_password_hash(data['password'])
+    new_user = models.User(username=username, password=base64.b64encode(password).decode('utf-8'))
     db.session.add(new_user)
     db.session.commit()
 
@@ -109,7 +107,7 @@ def login():
   username = data['username']
   user = models.User.query.filter_by(username=username).first()
 
-  if user: # TODO: verify password
+  if user and bcrypt.check_password_hash(base64.b64decode(user.password.encode('utf-8')), data['password']):
     session['user_id'] = user.id
     session.permanent = True
     return jsonify({'success': True, 'user': user_view(user)})
@@ -161,7 +159,9 @@ def endpoint_lobbies():
       abort(403)
 
     data = request.get_json()
-    gametype = models.GameType.query.filter_by(code=data['type']).one()
+    gametype = data['type']
+    if gametype not in engine.game_types():
+      abort(403)
 
     new_lobby = models.Lobby(gametype=gametype)
     db.session.add(new_lobby)
@@ -182,7 +182,8 @@ def join_lobby(lobby_id):
                                                  lobby_id=lobby.id).first()
     if userlobby is None:
       # Lobby must have space
-      if len(lobby.users) + 1 > lobby.gametype.max_players:
+      max_players = engine.game_types()[lobby.gametype]['max_players'];
+      if len(lobby.users) + 1 > max_players:
         raise Exception('lobby is full')
       userlobby = models.UserLobby(user=g.user, lobby=lobby)
       db.session.add(userlobby)
@@ -275,7 +276,7 @@ def perform_action(game_id):
     player_id = usergame.player_id if usergame else -1
 
     data = request.get_json()
-    result = engine.perform_action(game.gametype.code, game.state, player_id, data['action'])
+    result = engine.perform_action(game.gametype, game.state, player_id, data['action'])
 
     game.state = result['game_state']
     game.finished = result['finished']

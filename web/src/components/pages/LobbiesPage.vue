@@ -17,10 +17,10 @@
             .bignum {{ lobby.players.length }}
           .lobby-section
             h2 Required players
-            .bignum(v-if='lobby.min_players === lobby.max_players')
-              | {{ lobby.min_players }}
+            .bignum(v-if='games[lobby.type].min_players === games[lobby.type].max_players')
+              | {{ games[lobby.type].min_players }}
             .bignum(v-else)
-              | {{ lobby.min_players }} – {{ lobby.max_players }}
+              | {{ games[lobby.type].min_players }} – {{ games[lobby.type].max_players }}
         .lobby-controls
           button.even(@click='viewDetails(lobby.id)') View
 </template>

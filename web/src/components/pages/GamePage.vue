@@ -1,6 +1,6 @@
 <template lang='pug'>
   .game-page
-    component(v-if="gameState" :is="gameView" :state="gameState" :onaction="onAction")
+    component(v-if="gameState" :is="gameView" :state="gameState" :players="players" :onaction="onAction")
     div(v-if="gameState === undefined")
       Spinner
     div(v-if="gameState === null")
@@ -31,6 +31,7 @@ export default {
   data: () => ({
     gameType: undefined,
     gameState: undefined,
+    players: undefined,
   }),
   methods: {
     startPolling() {
@@ -50,6 +51,7 @@ export default {
         if (this.gameId !== expectedGameId) return;
         this.gameType = data.type;
         this.gameState = data.view;
+        this.players = data.players;
       }).catch(() => {
         if (this.gameId !== expectedGameId) return;
         this.gameState = null;

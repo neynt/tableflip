@@ -1,10 +1,12 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
+var game_types = require('../games/nodeindex.js');
 
 var gameRouter = express.Router();
 
 function error(res, err) {
+  console.log(err);
   res.status(500).send({'error': err});
 }
 
@@ -124,6 +126,9 @@ gameRouter.route('/:game/info').post(function(req, res) {
   }
 });
 
+app.get('/types', function(req, res) {
+  res.send(game_types);
+});
 app.use(bodyParser.json());
 app.use('/', gameRouter);
 
