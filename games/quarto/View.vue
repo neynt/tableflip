@@ -2,11 +2,11 @@
   .quarto
     div(v-if='state.winner === -1')
       p(v-if='state.player == state.current_player') Your turn!
-      p(v-else) Waiting for player {{ state.current_player }}.
+      p(v-else) Waiting for {{ username(state.current_player) }}.
     p(v-else) Game over.
       span(v-if='state.player === state.winner') You won!
       span(v-else-if='state.player !== -1') You lost!
-      span(v-else) Player {{ state.winner }} won.
+      span(v-else) {{ username(state.winner) }} won.
     .board
       .row(v-for='(cells, row) in state.board')
         .cell(
@@ -20,7 +20,7 @@
           )
             .dot(v-if='cell & 0x1')
     div(v-if='state.given_piece !== -1')
-      p Given piece:
+      p {{ username(1 - state.current_player) }} gave piece:
         .piece(
           v-if='state.given_piece != -1'
           :class='{ blue: state.given_piece & 0x8, square: state.given_piece & 0x4, large: state.given_piece & 0x2 }'
@@ -36,7 +36,7 @@
 </template>
 <script>
 export default {
-  props: ['state', 'onaction'],
+  props: ['state', 'players', 'onaction'],
   methods: {
     play(row, column) {
       this.onaction({
@@ -50,6 +50,10 @@ export default {
         type: 'give',
         given_piece,
       });
+    },
+    username(player_id) {
+      const player = this.players.find(p => p.player_id === player_id);
+      return player && player.username;
     },
   },
 };

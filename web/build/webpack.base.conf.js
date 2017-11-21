@@ -33,8 +33,11 @@ module.exports = {
         enforce: 'pre',
         include: [resolve('src'), resolve('test'), resolve('../games')],
         options: {
-          formatter: require('eslint-friendly-formatter')
-        }
+          formatter: require('eslint-friendly-formatter'),
+          env: {
+            es6: true,
+          },
+        },
       },
       {
         test: /\.vue$/,

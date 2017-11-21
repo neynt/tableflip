@@ -14,7 +14,7 @@
           }'
         )
     .cur_player(v-if='state.winner == -1')
-      | Current player is
+      | Current player is {{ username(state.current_player) }}
       br
       .cell(
         :class='{ \
@@ -32,7 +32,7 @@
         }'
       )
     .winner(v-if='state.winner != -1')
-      | Winner is
+      | Winner is {{ username(state.winner) }}
       br
       .cell(
         :class='{ \
@@ -43,13 +43,17 @@
 </template>
 <script>
 export default {
-  props: ['state', 'onaction'],
+  props: ['state', 'players', 'onaction'],
   methods: {
     click(c) {
       this.onaction({
         player: this.state.current_player,
         column: c,
       });
+    },
+    username(player_id) {
+      const player = this.players.find(p => p.player_id === player_id);
+      return player && player.username;
     },
   },
 };
