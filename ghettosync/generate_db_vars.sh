@@ -1,11 +1,7 @@
 
 set -e
 
-PGPASSWORD="stell4rated_dr3ams"
-DATABASE_URL="postgresql://postgres:stell4rated_dr3ams@104.238.128.152/tableflip"
-
 PGUSER="postgres"
-PGPASSWORD="stell4rated_dr3ams"
 
 DB1="104.238.128.152"
 DB2="45.77.147.104"
