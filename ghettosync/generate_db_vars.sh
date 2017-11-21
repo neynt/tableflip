@@ -20,19 +20,26 @@ do
     DB1_ROLE="$(timeout ${CURL_TIMEOUT}s curl http://$DB1/$ROLE_FILE || echo "404")"
     DB2_ROLE="$(timeout ${CURL_TIMEOUT}s curl http://$DB2/$ROLE_FILE || echo "404")"
 
-    if [ $DB1_ROLE = "404" ] && [ $DB2_ROLE = "404" ]; then
+    if echo "$DB1_ROLE" | grep --silent "404"; then
+        DB1_ROLE="404"
+    fi
+    if echo "$DB2_ROLE" | grep --silent "404"; then
+        DB2_ROLE="404"
+    fi
+
+    if [ "$DB1_ROLE" = "404" ] && [ "$DB2_ROLE" = "404" ]; then
         exit 1
     fi
 
-    if [ $DB1_ROLE = $DB2_ROLE ]; then
+    if [ "$DB1_ROLE" = "$DB2_ROLE" ]; then
         sleep $PING_INTERVAL
         continue
     fi
 
     export PGPASSWORD="$PGPASSWORD"
-    if [ $DB1_ROLE = "MASTER" ]; then
+    if [ "$DB1_ROLE" = "MASTER" ]; then
         export DATABASE_URL="postgresql://$PGUSER:$PGPASSWORD@$DB1/tableflip"
-    elif [ $DB2_ROLE = "MASTER" ]; then
+    elif [ "$DB2_ROLE" = "MASTER" ]; then
         export DATABASE_URL="postgresql://$PGUSER:$PGPASSWORD@$DB2/tableflip"
     fi
 
