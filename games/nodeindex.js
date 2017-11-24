@@ -24,4 +24,9 @@ module.exports = {
     min_players: 4,
     max_players: 4,
   },
+  homeworlds: {
+    name: 'Homeworlds',
+    min_players: 2,
+    max_players: 8,
+  },
 };

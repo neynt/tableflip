@@ -36,4 +36,11 @@ export default {
     view: () => import('./euchre/View'),
     rules: () => import('./euchre/rules'),
   },
+  homeworlds: {
+    name: games.homeworlds.name,
+    min_players: games.homeworlds.min_players,
+    max_players: games.homeworlds.max_players,
+    view: () => import('./homeworlds/View'),
+    rules: () => import('./homeworlds/rules'),
+  },
 };
