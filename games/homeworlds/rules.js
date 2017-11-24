@@ -14,6 +14,7 @@
  *   next_system: int,
  *   sacrifice_actions: int,
  *   sacrifice_colour: int,
+ *   done_main_action: boolean,
  * }
  * Pyramids are represented as colour * 3 + size
  * Ships are represented as player * 12 + pyramid
@@ -145,6 +146,19 @@ function pyramids_of_colour(system, colour) {
   return count;
 }
 
+function catastrophe_possible(game_state) {
+  for (let i = 0; i < game_state.next_system; i += 1) {
+    if (game_state.systems[i]) {
+      for (let j = 0; j < 4; j += 1) {
+        if (pyramids_of_colour(game_state.systems[i], j) >= 4) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function initial_state(players) {
   if (players < 2) {
     throw 'Invalid number of players';
@@ -163,6 +177,7 @@ function initial_state(players) {
     next_system: 0,
     sacrifice_actions: 0,
     sacrifice_colour: 0,
+    done_main_action: false,
   };
 }
 
@@ -176,6 +191,7 @@ function player_view(game_state, player) {
     next_system: game_state.next_system,
     sacrifice_actions: game_state.sacrifice_actions,
     sacrifice_colour: game_state.sacrifice_colour,
+    done_main_action: game_state.done_main_action,
   };
 }
 
@@ -223,7 +239,8 @@ function is_action_legal(game_view, action) {
     return false;
   }
   if (action.type === PASS) {
-    return game_view.sacrifice_actions > 0;
+    return game_view.sacrifice_actions > 0 ||
+      (game_view.done_main_action && catastrophe_possible(game_view));
   } else if (action.type === ATTACK) {
     // Red must be available to player.
     if (!action_colour_available(RED)) {
@@ -439,6 +456,9 @@ function perform_action(old_game_state, player, action) {
     };
     game_state.next_system += 1;
   }
+  if (action.type !== CATASTROPHE) {
+    game_state.done_main_action = true;
+  }
   if (action.type !== PASS && action.type !== HOMEWORLD) {
     if (game_state.systems[action.system].stars.length === 0 ||
         game_state.systems[action.system].ships.length === 0) {
@@ -449,7 +469,9 @@ function perform_action(old_game_state, player, action) {
     if (game_state.sacrifice_actions > 0) {
       game_state.sacrifice_actions -= 1;
     }
-    if (game_state.sacrifice_actions === 0) {
+    if (game_state.sacrifice_actions === 0 &&
+        (action.type === PASS || !catastrophe_possible(game_state))) {
+      game_state.done_main_action = false;
       // Advance current player.
       const last_player = game_state.current_player;
       while (!is_player_alive(game_state, game_state.current_player) ||

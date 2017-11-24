@@ -1,5 +1,38 @@
 <template lang='pug'>
   .homeworlds
+    svg.legend(:width='legendWidth()' :viewBox='"0 0 " + legendWidth() + " 100"')
+      g(v-for='player in state.players')
+        g(:transform='"translate(" + shipX(player - 2) + ",0)"')
+          use(xlink:href='#large' :fill='pyramidColour(3 * (player - 1))' width='60' height='60'
+              :transform='"rotate(" + shipAngle(12 * (player - 1)) + " 30 30)"')
+        text(:x='shipX(player - 2) + 30' y='75' text-anchor='middle') {{ username(player - 1) }}
+        g(v-if='player - 1 === state.current_player')
+          <svg :x='shipX(player - 2) + 20' y='80' width="20px" height="20px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" style="background: none;"><g transform="rotate(0 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(60 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(120 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(180 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(240 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate>
+            </rect>
+          </g><g transform="rotate(300 50 50)">
+            <rect x="45" y="10" rx="4.5" ry="1" width="10" height="40" fill="#a9a9a9">
+              <animate attributeName="opacity" values="1;0" times="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animate>
+            </rect>
+          </g></svg>
+    br
     svg.stash(width='720' viewBox='0 0 720 100')
       defs
         symbol(id='large' viewBox='0 0 60 60')
@@ -87,7 +120,7 @@ export default {
       if (this.homeworldParts.length) {
         systems[this.state.next_system] = {
           stars: this.homeworldParts.slice(0, 2),
-          ships: this.homeworldParts.slice(2),
+          ships: [this.homeworldParts[2] + (12 * this.state.player)],
         };
       } else {
         delete systems[this.state.next_system];
@@ -111,6 +144,9 @@ export default {
     },
     shipX(i) {
       return 60 + (i * 60);
+    },
+    legendWidth() {
+      return this.state.players * 60;
     },
     shipAngle(ship) {
       return Math.floor(ship / 12) * (360 / this.state.players);
@@ -235,5 +271,8 @@ export default {
 <style scoped>
 .clickable {
   cursor: pointer;
+}
+svg.system {
+  display: inline-block;
 }
 </style>
