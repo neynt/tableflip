@@ -3,16 +3,16 @@
     h2 {{ latest_message }}
     .players
       .player(v-for='(hand, p_id) in state.hands')
-        h2(:class='{ accent: p_id === state.current_player }')
+        h2(:class='{ accent: p_id === state.current_player, \
+            "active-player": p_id === state.current_player }')
           | {{ username(p_id) }}
           span(v-if='p_id === state.player_id')  (you)
           button(
-            v-if='needs_target'
+            v-if='can_target(p_id)'
             style='float: right'
             @click='pickTarget(p_id)'
           )
-            span(v-if='p_id === target' style='font-weight: bold') Target
-            span(v-else) Target
+            span(:style='{ fontWeight: (p_id === target) ? "bold" : "normal" }') Target
 
         .gems
           span(v-for='_ in Array(state.num_wins[p_id])') ⋄
@@ -44,9 +44,17 @@
           v-if='state.current_player === state.player_id && p_id === state.priested_player'
           @click='submitMove()'
         ) Continue
+      button(
+        v-if='no_valid_target'
+        style='float: right'
+        @click='pickTarget(-1)'
+      )
+        span(:style='{ fontWeight: (-1 === target) ? "bold" : "normal" }') No target
 
 </template>
 <script>
+import rules from './rules';
+
 export default {
   props: ['state', 'players', 'onaction'],
   data() {
@@ -55,8 +63,10 @@ export default {
       card: null,
       needs_target: false,
       needs_guess: false,
+      can_target_self: false,
       target: null,
       guess: null,
+      rules,
     };
   },
   computed: {
@@ -67,11 +77,28 @@ export default {
       }
       return message;
     },
+    no_valid_target() {
+      if (!this.needs_target) return false;
+      let result = true;
+      for (let p_id = 0; p_id < this.state.num_players; p_id += 1) {
+        if (this.can_target(p_id)) {
+          result = false;
+        }
+      }
+      return result;
+    },
   },
   methods: {
     username(player_id) {
       const player = this.players.find(p => p.player_id === player_id);
       return player && player.username;
+    },
+    can_target(p_id) {
+      return (
+        this.needs_target &&
+        (p_id !== this.state.player_id || this.can_target_self) &&
+        !rules.is_handmaided(this.state, p_id)
+      );
     },
     submitMove() {
       const action = { card: this.card };
@@ -87,9 +114,10 @@ export default {
     },
     checkForMoveDone() {
       this.needs_target = [1, 2, 3, 5, 6].includes(this.card);
+      this.can_target_self = this.card === 5;
       this.needs_guess = this.card === 1;
       if (this.needs_target && this.target == null) return;
-      if (this.needs_guess && this.guess == null) return;
+      if (this.needs_guess && this.guess == null && this.target !== -1) return;
       this.submitMove();
     },
     pickTarget(pid) {
@@ -104,6 +132,8 @@ export default {
       if (this.state.player_id !== this.state.current_player) return;
       this.card = card;
       this.card_idx = card_idx;
+      this.target = null;
+      this.guess = null;
       this.checkForMoveDone();
     },
   },
@@ -121,6 +151,9 @@ export default {
   min-width: 160px;
   border: 2px solid #aaa;
   border-radius: 2px;
+}
+.active-player::before {
+  content: '⇒ ';
 }
 h2 {
   margin: 0 0 0.2em;

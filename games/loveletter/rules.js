@@ -73,10 +73,13 @@ function kill_player(game_state, p_id) {
   /* eslint-enable */
 }
 
-function is_handmaided(player_discards) {
+function is_handmaided(state, p_id) {
+  const hand = state.hands[p_id];
+  const discards = state.discards[p_id];
   return (
-    (player_discards.length > 0)
-    && player_discards[player_discards.length - 1] === 4
+    hand.length < 2
+    && (discards.length > 0)
+    && discards[discards.length - 1] === 4
   );
 }
 
@@ -150,7 +153,7 @@ function has_legal_action(game_view) {
 function is_action_legal(game_view, action) {
   let all_others_handmaided = true;
   for (let i = 0; i < game_view.num_players; i += 1) {
-    if (i !== game_view.current_player && is_handmaided(game_view.discards[i])) {
+    if (i !== game_view.current_player && !is_handmaided(game_view, i)) {
       all_others_handmaided = false;
       break;
     }
@@ -164,14 +167,17 @@ function is_action_legal(game_view, action) {
   // Player must have selected card
   if (!game_view.hands[game_view.player_id].includes(action.card)) return false;
   if (action.target !== undefined) {
-    // Action cannot be no-target if someone isn't handmaided
-    if (action.target === -1 && !all_others_handmaided) return false;
-    // Target must be valid, alive, and not handmaided
-    if (!(
+    if (action.target === -1) {
+      // Action cannot be no-target if someone isn't handmaided
+      if (!all_others_handmaided) {
+        return false;
+      }
+    } else if (!(
+      // Target must be valid, alive, and not handmaided
       action.target >= 0
       && action.target < game_view.num_players
       && game_view.player_alive[action.target]
-      && !is_handmaided(game_view.discards[action.target])
+      && !is_handmaided(game_view, action.target)
     )) return false;
   }
   if (action.guess) {
@@ -208,12 +214,12 @@ function play_card(game_state, player_id, action) {
   const my_hand = game_state.hands[player_id];
   my_discards.push(my_hand.splice(my_hand.indexOf(action.card), 1)[0]);
 
+  if (action.target === -1) {
+    game_state.log.push(`Player ${player_id} discards a ${action.card}.`);
+    return true;
+  }
   switch (action.card) {
     case 1:
-      if (action.target === -1) {
-        game_state.log.push(`Player ${player_id} discards a 1.`);
-        break;
-      }
       if (game_state.hands[action.target].includes(action.guess)) {
         // Guess was correct. Fuck 'em up, boss!
         game_state.log.push(
@@ -241,12 +247,12 @@ function play_card(game_state, player_id, action) {
         kill_player(game_state, action.target);
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
-          `Player ${action.target} is defeated.`);
+          `Player ${action.target} had a ${their_card} and is defeated.`);
       } else if (my_card < their_card) {
         kill_player(game_state, player_id);
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. ` +
-          `Player ${player_id} is defeated.`);
+          `Player ${player_id} had a ${my_card} and is defeated.`);
       } else {
         game_state.log.push(
           `Player ${player_id} uses a 3 to compare hands with Player ${action.target}. They are equal.`);
@@ -337,7 +343,7 @@ function perform_action(old_game_state, player_id, action) {
   }
   if (game_state.hands.filter(h => h.length > 0).length === 1) {
     // Only one player left. They win!
-    game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} is the last one standing and wins the round!`;
+    game_state.log[game_state.log.length - 1] += ` Player ${next_player_id} had a ${game_state.hands[next_player_id][0]}. Player ${next_player_id} is the last one standing and wins the round!`;
     add_point(game_state, next_player_id);
   } else if (game_state.deck.length <= 1) {
     // If there are 0 or 1 cards remaining in the deck, the player with the
@@ -368,4 +374,6 @@ module.exports = {
   perform_action,
   is_game_finished,
   winners,
+  // Used in view
+  is_handmaided,
 };
