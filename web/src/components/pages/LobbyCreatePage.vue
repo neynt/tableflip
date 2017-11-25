@@ -15,6 +15,12 @@
           | {{ selected_game.min_players }}
         .bignum(v-else)
           | {{ selected_game.min_players }} – {{ selected_game.max_players }}
+      .lobby-section(v-if='selected_game && selected_game.rule_text')
+        h2 Rules
+        ul
+          li(v-for='line in selected_game.rule_text') {{ line }}
+          li(v-if='selected_game.rule_link')
+            a(:href='selected_game.rule_link') More info
       .lobby-section
         div
           button(@click='create') Create
