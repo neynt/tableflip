@@ -159,4 +159,17 @@ th {
 .lobby-controls {
   text-align: right;
 }
+
+/* Lists */
+
+ol, ul {
+  list-style: none;
+}
+li {
+  padding-left: 10px;
+}
+li:before {
+  content: '•';
+  padding-right: 8px;
+}
 </style>

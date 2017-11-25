@@ -7,6 +7,11 @@ export default {
     max_players: games.connect4.max_players,
     view: () => import('./connect4/View'),
     rules: () => import('./connect4/rules'),
+    rule_link: 'https://en.wikipedia.org/wiki/Connect_Four',
+    rule_text: [
+      'Take turns dropping your pieces down one of seven columns!',
+      'The first player to make four in a row wins.',
+    ],
   },
   quarto: {
     name: games.quarto.name,
@@ -14,6 +19,13 @@ export default {
     max_players: games.quarto.max_players,
     view: () => import('./quarto/View'),
     rules: () => import('./quarto/rules'),
+    rule_link: 'https://en.wikipedia.org/wiki/Quarto_(board_game)',
+    rule_text: [
+      'Quarto is played on a 4×4 board.',
+      'There are sixteen pieces, each with four attributes: size (big/small), color (red/blue), shape (circle/square), and hollowness (hollow/filled).',
+      'You win if you complete a row of four pieces that share a common attribute.',
+      'Oh, and your opponent picks which piece you play next.',
+    ],
   },
   hanabi: {
     name: games.hanabi.name,
@@ -21,6 +33,16 @@ export default {
     max_players: games.hanabi.max_players,
     view: () => import('./hanabi/View'),
     rules: () => import('./hanabi/rules'),
+    rule_link: 'https://en.wikipedia.org/wiki/Hanabi_(card_game)',
+    rule_text: [
+      'Hanabi is a cooperative card game.',
+      "Players can see everyone's cards except their own.",
+      'Players take turns performing one of three actions.',
+      '1: Give a hint to another player. This costs a hint token.',
+      '2: Discard a card. This replenishes a hint token.',
+      '3: Play a card. Must be the next card of a color. If unsuccessful, costs a life.',
+      'Your goal as a team is to play as many cards as possible before running out of cards or lives.',
+    ],
   },
   loveletter: {
     name: games.loveletter.name,
@@ -28,6 +50,23 @@ export default {
     max_players: games.loveletter.max_players,
     view: () => import('./loveletter/View'),
     rules: () => import('./loveletter/rules'),
+    rule_link: 'https://en.wikipedia.org/wiki/Love_Letter_(card_game)',
+    rule_text: [
+      'Love Letter is a card game.',
+      'The active player has two cards. Everyone else has one.',
+      'These cards are as follows:',
+      "1: Guard. Guess another player's hand. If you are correct, they are out of the round.",
+      "2: Priest. View another player's hand.",
+      '3: Baron. Compare hands with another player. The lower one is out of the round.',
+      '4: Handmaiden. Immune to being targeted until your next turn.',
+      '5: Prince. Force a player to discard their card and draw a new one.',
+      '6: King. Trade hands with another player.',
+      '7: Countess. Must be played if your other card is the 5 or 6.',
+      '8: Princess. You lose if you play this card.',
+      'There are 5 guards, 2 of cards 2-5, and 1 of cards 6-8.',
+      'You win a round by being the last player standing or by holding the highest valued card when the deck runs out.',
+      'The first player to win n rounds wins the game. (n = 7, 5, 4, 3 for 2, 3, 4, 5 players respectively.)',
+    ],
   },
   euchre: {
     name: games.euchre.name,
@@ -35,6 +74,10 @@ export default {
     max_players: games.euchre.max_players,
     view: () => import('./euchre/View'),
     rules: () => import('./euchre/rules'),
+    rule_link: 'https://en.wikipedia.org/wiki/Euchre',
+    rule_text: [
+      'Euchre is a trick-taking card game.',
+    ],
   },
   homeworlds: {
     name: games.homeworlds.name,
@@ -42,5 +85,9 @@ export default {
     max_players: games.homeworlds.max_players,
     view: () => import('./homeworlds/View'),
     rules: () => import('./homeworlds/rules'),
+    rule_link: 'https://boardgamegeek.com/boardgame/14634/homeworlds',
+    rule_text: [
+      'Homeworlds is a space battle game played with Icehouse pyramids.',
+    ],
   },
 };
