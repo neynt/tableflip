@@ -164,12 +164,13 @@ th {
 
 ol, ul {
   list-style: none;
+  padding-left: 30px;
 }
 li {
-  padding-left: 10px;
 }
 li:before {
   content: '•';
-  padding-right: 8px;
+  padding-right: 10px;
+  margin-left: -15px;
 }
 </style>
