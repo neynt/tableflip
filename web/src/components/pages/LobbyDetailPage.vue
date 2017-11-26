@@ -4,38 +4,45 @@
     button(@click='$router.push({ name: "LobbyPage" })') All lobbies
     br
     Spinner(v-if='!lobby')
-    .lobby(v-else)
-      .lobby-detail
-        .lobby-row
-          .lobby-section
-            h2 Game
-            .bignum {{ games[lobby.type].name }}
-        .lobby-row
-          .lobby-section
-            h2 Players
-            .bignum {{ lobby.players.length }}
-          .lobby-section
-            h2 Required players
-            .bignum(v-if='games[lobby.type].min_players === games[lobby.type].max_players')
-              | {{ games[lobby.type].min_players }}
-            .bignum(v-else)
-              | {{ games[lobby.type].min_players }} – {{ games[lobby.type].max_players }}
-        .lobby-row
-          .lobby-section
-            h2 Current players
-            .bignum
-              span(v-for='(player, idx) in lobby.players')
-                span.comma(v-if='idx !== 0')
-                  | , 
-                | {{ player.username }}
-            .bignum.faint(v-if='lobby.players.length === 0')
-              | None
-        .lobby-controls
-          template(v-if='!lobby.game_id')
-            button(v-if='in_lobby' @click='leave' key='leave') Leave
-            button(v-else @click='join' key='join') Join
-            button(@click='start' v-if='lobby.players.length >= games[lobby.type].min_players') Start
-          button(v-else @click='view_game') View Game
+    .lobby-detail
+      .lobby-row
+        .lobby-section
+          h2 Game
+          .bignum {{ games[lobby.type].name }}
+      .lobby-row
+        .lobby-section
+          h2 Required players
+          .bignum(v-if='games[lobby.type].min_players === games[lobby.type].max_players')
+            | {{ games[lobby.type].min_players }}
+          .bignum(v-else)
+            | {{ games[lobby.type].min_players }} – {{ games[lobby.type].max_players }}
+        .lobby-section
+          h2 Players
+          .bignum {{ lobby.players.length }}
+        .lobby-section
+          h2 Current players
+          .bignum
+            span(v-for='(player, idx) in lobby.players')
+              span.comma(v-if='idx !== 0')
+                | , 
+              | {{ player.username }}
+          .bignum.faint(v-if='lobby.players.length === 0')
+            | None
+      .lobby-row
+        .lobby-section
+          .lobby-controls
+            template(v-if='!lobby.game_id')
+              button(v-if='in_lobby' @click='leave' key='leave') Leave
+              button(v-else @click='join' key='join') Join
+              button(@click='start' v-if='lobby.players.length >= games[lobby.type].min_players') Start
+            button(v-else @click='view_game') View Game
+      .lobby-row
+        .lobby-section(v-if='games[lobby.type] && games[lobby.type].rule_text')
+          h2 Rules
+          ul
+            li(v-for='line in games[lobby.type].rule_text') {{ line }}
+            li(v-if='games[lobby.type].rule_link')
+              a(:href='games[lobby.type].rule_link') More info
 </template>
 <script>
 import Spinner from '@/components/Spinner';
