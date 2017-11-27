@@ -28,7 +28,7 @@ export default {
       that.lobbies = data;
     });
   },
-  poll(client, name, func) {
+  poll(client, name, func, interval = 1000) {
     if (!polling[name]) {
       polling[name] = {
         listeners: [],
@@ -36,7 +36,7 @@ export default {
       };
     }
     if (!polling[name].interval) {
-      polling[name].interval = setInterval(func, 1000);
+      polling[name].interval = setInterval(func, interval);
       func();
     }
     if (polling[name].listeners.indexOf(client) === -1) {

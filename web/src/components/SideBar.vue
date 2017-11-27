@@ -78,7 +78,7 @@ export default {
     startPolling() {
       globals.poll('sidebar', 'userGames', () => {
         globals.fetchUserGames();
-      });
+      }, 5000);
     },
     signout: () => {
       Vue.set(globals, 'current_user', null);
