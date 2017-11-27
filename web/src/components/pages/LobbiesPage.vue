@@ -2,7 +2,6 @@
   .lobby-page
     h1 Lobbies
     button(@click='$router.push({ name: "CreateLobbyPage" })') Create new lobby
-    button(@click='refresh') Refresh
     br
     Spinner(v-if='!globals.lobbies')
     .lobbies(v-else)
@@ -36,21 +35,23 @@ export default {
     globals,
   }),
   created() {
-    globals.fetchLobbies();
+    this.startPolling();
   },
   watch: {
-    $route() {
-      globals.fetchLobbies();
-    },
+    $route: 'startPolling',
   },
   methods: {
     viewDetails(id) {
       this.$router.push({ name: 'LobbyDetailPage', params: { id } });
     },
-    refresh() {
-      globals.lobbies = null;
-      globals.fetchLobbies();
+    startPolling() {
+      globals.poll('lobbiespage', 'lobbies', () => {
+        globals.fetchLobbies();
+      });
     },
+  },
+  destroyed() {
+    globals.stopPoll('lobbiespage', 'lobbies');
   },
 };
 </script>
