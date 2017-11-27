@@ -10,6 +10,7 @@
 import Spinner from '@/components/Spinner';
 import api from '@/api';
 import games from '@/games/index';
+import globals from '@/globals';
 
 export default {
   components: { Spinner },
@@ -36,14 +37,9 @@ export default {
   methods: {
     startPolling() {
       this.gameState = undefined;
-      this.fetchData();
-      if (this.pollingTimer) {
-        clearInterval(this.pollingTimer);
-      }
-      this.pollingTimer = setInterval(() => {
+      globals.poll('gamepage', 'currentGame', () => {
         this.fetchData();
-      }, 1000);
-      this.fetchData();
+      });
     },
     fetchData() {
       const expectedGameId = this.gameId;
@@ -66,8 +62,7 @@ export default {
     },
   },
   destroyed() {
-    clearInterval(this.pollingTimer);
-    this.pollingTimer = null;
+    globals.stopPoll('gamepage', 'currentGame');
   },
 };
 </script>

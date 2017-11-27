@@ -53,15 +53,15 @@ export default {
   components: { Spinner },
   computed: {
     activeGames() {
-      if (globals.games) {
-        return globals.games.filter(game => !game.finished)
+      if (globals.userGames) {
+        return globals.userGames.filter(game => !game.finished)
           .map(gameView);
       }
       return undefined;
     },
     finishedGames() {
-      if (globals.games) {
-        return globals.games.filter(game => game.finished)
+      if (globals.userGames) {
+        return globals.userGames.filter(game => game.finished)
           .map(gameView);
       }
       return undefined;
@@ -76,19 +76,19 @@ export default {
   }),
   methods: {
     startPolling() {
-      globals.poll('sidebar', 'games', () => {
-        globals.fetchGames();
+      globals.poll('sidebar', 'userGames', () => {
+        globals.fetchUserGames();
       });
     },
     signout: () => {
       Vue.set(globals, 'current_user', null);
-      globals.games = null;
+      globals.userGames = null;
       api.get('logout');
       router.push('/login');
     },
   },
   destroyed() {
-    globals.stopPoll('sidebar', 'games');
+    globals.stopPoll('sidebar', 'userGames');
   },
 };
 </script>

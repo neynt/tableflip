@@ -4,15 +4,15 @@ const polling = {};
 
 export default {
   current_user: null,
-  games: null,
+  userGames: null,
   lobbies: null,
-  fetchGames() {
+  fetchUserGames() {
     const that = this;
     if (!this.current_user) {
       return;
     }
     api.get(`users/${this.current_user.id}/games`).then((data) => {
-      that.games = data;
+      that.userGames = data;
     });
   },
   fetchLobbies() {
@@ -42,7 +42,7 @@ export default {
     }
     const index = polling[name].listeners.indexOf(client);
     if (index !== -1) {
-      polling[name].listeners.splice(1, client);
+      polling[name].listeners.splice(index, 1);
     }
     if (polling[name].listeners.length === 0 && polling[name].interval) {
       clearInterval(polling[name].interval);

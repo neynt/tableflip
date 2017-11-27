@@ -34,7 +34,6 @@ export default {
       }).then((response) => {
         this.logging_in = false;
         Vue.set(globals, 'current_user', response.user);
-        globals.fetchGames();
         router.push('/');
       }).catch(() => {
         this.error = 'Bad registration';

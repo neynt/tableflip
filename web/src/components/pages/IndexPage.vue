@@ -56,15 +56,15 @@ export default {
   }),
   computed: {
     activeGames() {
-      if (globals.games) {
-        return globals.games.filter(game => !game.finished)
+      if (globals.userGames) {
+        return globals.userGames.filter(game => !game.finished)
           .map(gameView);
       }
       return undefined;
     },
     finishedGames() {
-      if (globals.games) {
-        return globals.games.filter(game => game.finished)
+      if (globals.userGames) {
+        return globals.userGames.filter(game => game.finished)
           .map(gameView);
       }
       return undefined;
@@ -72,10 +72,13 @@ export default {
   },
   methods: {
     startPolling() {
-      globals.poll('indexpage', 'games', () => {
-        globals.fetchGames();
+      globals.poll('indexpage', 'userGames', () => {
+        globals.fetchUserGames();
       });
     },
+  },
+  destroyed() {
+    globals.stopPoll('indexpage', 'userGames');
   },
 };
 </script>
