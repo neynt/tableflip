@@ -12,7 +12,8 @@
                 h2 With {{ game.with }}
             .lobby-controls
               router-link(:to="{ name: 'GamePage', params: { id: game.id } }")
-                button View
+                button(v-if='game.current_turn') Make Move
+                button(v-else) View
       div(v-else-if='activeGames')
         h2
           | No active games. 
@@ -24,7 +25,6 @@
 </template>
 <script>
 import Spinner from '@/components/Spinner';
-import api from '@/api';
 import globals from '@/globals';
 import games from '@/games/index';
 
@@ -39,19 +39,19 @@ function gameView(game) {
     id: game.id,
     name: (games[game.type] && games[game.type].name) || game.type,
     with: withPlayersList(game).join(', '),
+    current_turn: game.current_turn,
   };
 }
 
 export default {
   components: { Spinner },
   created() {
-    this.fetchData();
+    this.startPolling();
   },
   watch: {
-    $route: 'fetchData',
+    $route: 'startPolling',
   },
   data: () => ({
-    lobbies: undefined,
     globals,
   }),
   computed: {
@@ -71,10 +71,9 @@ export default {
     },
   },
   methods: {
-    fetchData() {
-      this.lobbies = undefined;
-      api.get('lobbies').then((data) => {
-        this.lobbies = data;
+    startPolling() {
+      globals.poll('indexpage', 'games', () => {
+        globals.fetchGames();
       });
     },
   },

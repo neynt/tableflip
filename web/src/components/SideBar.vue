@@ -67,17 +67,28 @@ export default {
       return undefined;
     },
   },
+  created() {
+    this.startPolling();
+  },
   data: () => ({
     globals,
     router,
   }),
   methods: {
+    startPolling() {
+      globals.poll('sidebar', 'games', () => {
+        globals.fetchGames();
+      });
+    },
     signout: () => {
       Vue.set(globals, 'current_user', null);
       globals.games = null;
       api.get('logout');
       router.push('/login');
     },
+  },
+  destroyed() {
+    globals.stopPoll('sidebar', 'games');
   },
 };
 </script>
