@@ -93,10 +93,10 @@ export default {
     startPolling() {
       globals.poll('indexpage', 'userGames', () => {
         globals.fetchUserGames();
-      });
+      }, 5000);
       globals.poll('indexpage', 'activeGames', () => {
         globals.fetchActiveGames();
-      });
+      }, 20000);
     },
   },
   destroyed() {
