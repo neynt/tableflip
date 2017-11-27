@@ -4,8 +4,15 @@ const polling = {};
 
 export default {
   current_user: null,
+  activeGames: null,
   userGames: null,
   lobbies: null,
+  fetchActiveGames() {
+    const that = this;
+    api.get('games?finished=false&limit=100').then((data) => {
+      that.activeGames = data;
+    });
+  },
   fetchUserGames() {
     const that = this;
     if (!this.current_user) {

@@ -4,7 +4,7 @@ export DATABASE_URL="postgresql://localhost/tableflip"
 PG_LOG="postgres.log"
 [[ -f .env ]] && export $(cat .env | xargs)
 
-#source "ghettosync/generate_db_vars.sh"
+source "ghettosync/generate_db_vars.sh"
 export PGPASSWORD="$PGPASSWORD"
 export DATABASE_URL="$DATABASE_URL"
 

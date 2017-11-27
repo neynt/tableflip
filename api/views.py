@@ -225,7 +225,12 @@ def start_lobby(lobby_id):
 
 @app.route(api_endpoint + 'games', methods=['GET'])
 def get_games():
-  games = models.Game.query.all()
+  query = models.Game.query;
+  if request.args.get('finished', None):
+    query = query.filter_by(finished=request.args.get('finished', True))
+  if request.args.get('limit', None):
+    query = query.limit(request.args.get('limit', 10))
+  games = query.all()
   return jsonify([game_view(game) for game in games])
 
 @app.route(api_endpoint + 'games/<int:game_id>', methods=['GET'])
