@@ -64,9 +64,9 @@
             )
     hr
     svg.system(v-for='(system, id) in systems()'
-               :viewBox='"0 0 " + systemWidth(system) + " 100"'
+               :viewBox='"0 0 " + systemWidth(system) + " 120"'
                :width='systemWidth(system)')
-      rect(x='5' y='5' :width='systemWidth(system) - 10' height='90' fill='#fff' stroke='#000')
+      rect(x='5' y='5' :width='systemWidth(system) - 10' height='110' fill='#fff' stroke='#000')
       rect.clickable(@click='clickSystem(id)'
           x='10' y='10' width='40' height='80' fill='#fff' stroke='#000')
         animate(v-if='selectedSystem === id' attributeName='stroke-dasharray' values='5,5')
@@ -88,6 +88,7 @@
           use.clickable(@click='clickShip(id, i)'
               :xlink:href='pyramidSize(ship)' :fill='pyramidColour(ship)'
               width='60' height='60' :transform='"rotate(" + shipAngle(ship) + " 30 30)"')
+      text(x='12' y='109' v-if='id < state.players') {{ username(parseInt(id)) }}
     hr
     button(v-for='action in possibleActions()' @click='doAction(action)') {{ actionName(action.type) }}
     button(v-if='selectedStash !== null || selectedSystem !== null || selectedShip !== null || homeworldParts.length' @click='cancel') Cancel
