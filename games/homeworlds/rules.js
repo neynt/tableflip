@@ -469,17 +469,17 @@ function perform_action(old_game_state, player, action) {
     if (game_state.sacrifice_actions > 0) {
       game_state.sacrifice_actions -= 1;
     }
-    if (game_state.sacrifice_actions === 0 &&
-        (action.type === PASS || !catastrophe_possible(game_state))) {
-      game_state.done_main_action = false;
-      // Advance current player.
-      const last_player = game_state.current_player;
-      while (!is_player_alive(game_state, game_state.current_player) ||
-             game_state.current_player === last_player) {
-        game_state.current_player = (game_state.current_player + 1) % game_state.players;
-        if (game_state.current_player === last_player) {
-          break;
-        }
+  }
+  if (game_state.done_main_action && game_state.sacrifice_actions === 0 &&
+      (action.type === PASS || !catastrophe_possible(game_state))) {
+    game_state.done_main_action = false;
+    // Advance current player.
+    const last_player = game_state.current_player;
+    while (!is_player_alive(game_state, game_state.current_player) ||
+           game_state.current_player === last_player) {
+      game_state.current_player = (game_state.current_player + 1) % game_state.players;
+      if (game_state.current_player === last_player) {
+        break;
       }
     }
   }
