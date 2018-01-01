@@ -90,4 +90,15 @@ export default {
       'Homeworlds is a space battle game played with Icehouse pyramids.',
     ],
   },
+  wondersduel: {
+    name: games.wondersduel.name,
+    min_players: games.wondersduel.min_players,
+    max_players: games.wondersduel.max_players,
+    view: () => import('./wondersduel/View'),
+    rules: () => import('./wondersduel/rules'),
+    rule_link: 'https://boardgamegeek.com/boardgame/173346/7-wonders-duel',
+    rule_text: [
+      '7 Wonders Duel is a two-player version of 7 Wonders.',
+    ],
+  },
 };

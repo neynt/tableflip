@@ -31,7 +31,7 @@ case "$1" in
     exec engine/start.sh
     ;;
 "psql")
-    psql -h utena.neynt.ca -U tableflip_staging tableflip_staging
+    psql $DATABASE_URL
     ;;
 *)
     echo "Usage: ./start.sh [all|web|api|shell|engine|psql]"

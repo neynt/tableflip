@@ -29,4 +29,9 @@ module.exports = {
     min_players: 2,
     max_players: 8,
   },
+  wondersduel: {
+    name: '7 Wonders Duel',
+    min_players: 2,
+    max_players: 2,
+  },
 };
