@@ -12,10 +12,10 @@
       .tree(v-if='state.tree.length')
         .row(v-for='(row, i) in state.tree')
           .card.card-align(v-if='i % 2 === 1') &nbsp;
-          .card(v-for='card in row')
-            .face(v-if='card > 0') {{ rules.cards[card].name }}
-            .space(v-else-if='card === 0') &nbsp;
-            .back(v-else) &nbsp;
+          Card(v-for='card in row' :key='card' :card='card' :age='state.age')
+      .tree
+        .row
+          Card(v-for='card in 73' :key='card' :card='card')
       hr
     .city(v-for='player in [0, 1]')
       h2 {{ username(player) }}
@@ -30,10 +30,12 @@
 </template>
 
 <script>
+import Card from './Card';
 import rules from './rules';
 
 export default {
   props: ['state', 'players', 'onaction'],
+  components: { Card },
   computed: {
     rules() {
       return rules;
@@ -61,26 +63,17 @@ p span {
 hr {
   margin: 10px 0;
 }
-.card {
+.tree {
+  margin-bottom: 60px;
+}
+.row {
+  margin-bottom: -60px;
+}
+.card-align {
   display: inline-block;
   vertical-align: top;
   margin: 2px;
+  width: 40px;
+  height: 120px;
 }
-.card-align {
-  width: 30px;
-  height: 90px;
-}
-.card div {
-  width: 60px;
-  height: 90px;
-  padding: 5px;
-  word-wrap: break-word;
-}
-.card .face {
-  border: 1px solid black;
-}
-.card .back {
-  background: #222;
-}
-.card .space {}
 </style>

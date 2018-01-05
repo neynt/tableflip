@@ -1081,7 +1081,7 @@ function perform_action(original_state, player, action) {
   return state;
 }
 
-module.exports = {
+export default {
   initial_state,
   player_view,
   current_players,
