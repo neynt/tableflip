@@ -4,10 +4,6 @@ export DATABASE_URL="postgresql://localhost/tableflip"
 PG_LOG="postgres.log"
 [[ -f .env ]] && export $(cat .env | xargs)
 
-source "ghettosync/generate_db_vars.sh"
-export PGPASSWORD="$PGPASSWORD"
-export DATABASE_URL="$DATABASE_URL"
-
 if [ "$(uname)" != "Linux" ]; then
     # Start Postgres if your OS doesn't handle that for you
     if pg_ctl status -D "$PG_DIR" ; then
