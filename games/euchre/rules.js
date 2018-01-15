@@ -410,7 +410,7 @@ function perform_action(game_state, player, action) {
   return game_copy;
 }
 
-module.exports = {
+export default {
   initial_state,
   player_view,
   current_players,

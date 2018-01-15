@@ -365,7 +365,7 @@ function perform_action(old_game_state, player_id, action) {
   return game_state;
 }
 
-module.exports = {
+export default {
   initial_state,
   player_view,
   current_players,

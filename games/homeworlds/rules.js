@@ -499,7 +499,7 @@ function winners(game_state) {
   return [];
 }
 
-module.exports = {
+export default {
   initial_state,
   player_view,
   current_players,

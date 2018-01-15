@@ -160,7 +160,7 @@ function winners(game_state) {
   return [];
 }
 
-module.exports = {
+export default {
   /* Creates initial game state.
    * @param players Number of players in the game.
    * @throws something if the game does not support that number of players.

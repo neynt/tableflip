@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-var game_types = require('../games/nodeindex.js');
+var game_types = require('./games/nodeindex.js');
 
 var gameRouter = express.Router();
 
@@ -25,7 +25,7 @@ gameRouter.use('/:game', function getGameRules(req, res, next) {
   // Strip all non-alphanumeric characters for safety
   var game = req.params['game'].replace(/\W/g, '');
   try {
-    req.rules = require('../games/' + game + '/rules');
+    req.rules = require('./games/' + game + '/rules');
     next();
   } catch (err) {
     res.status(500).send(err);

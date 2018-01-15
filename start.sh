@@ -28,7 +28,7 @@ case "$1" in
     flask shell
     ;;
 "engine")
-    exec node engine/index.js
+    exec engine/start.sh
     ;;
 "psql")
     psql -h utena.neynt.ca -U tableflip_staging tableflip_staging

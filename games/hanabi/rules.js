@@ -311,7 +311,7 @@ function perform_action(game_state, player, action) {
   return game_copy;
 }
 
-module.exports = {
+export default {
   /* Creates initial game state.
    * @param players Number of players in the game.
    * @throws something if the game does not support that number of players.
