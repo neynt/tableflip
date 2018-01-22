@@ -1,17 +1,20 @@
 <template lang='pug'>
 .card
   .face(v-if='card > 0')
-    .header(v-bind:class='header_dict(card)') &nbsp;
+    .header(v-bind:class='header_dict(card)')
+      GameSymbol(v-for='effect in rules.cards[card].effects' :effect='effect' size='20')
     span.title {{ rules.cards[card].name }}
   .space(v-else-if='card === 0') &nbsp;
   .back(v-else v-bind:class='back_dict(age)') &nbsp;
 </template>
 
 <script>
+import GameSymbol from './GameSymbol';
 import rules from './rules';
 
 export default {
   props: ['card', 'age'],
+  components: { GameSymbol },
   computed: {
     rules() {
       return rules;
@@ -91,6 +94,13 @@ export default {
   margin: 0;
   margin-top: -1px;
   margin-left: -1px;
+  text-align: center;
+}
+.card .header .game-symbol {
+  display: inline-block;
+  margin: 3px;
+  width: auto;
+  height: 20px;
 }
 .brown {
   background: #703421;
