@@ -636,7 +636,7 @@ const WONDERS = {
   2: {
     name: 'Circus Maximus',
     cost: [0, 1, 0, 2, 1, 0],
-    effects: [{ type: 'destory_resource', colour: 2 }, { type: 'shields', amt: 1 },
+    effects: [{ type: 'destroy_resource', colour: 2 }, { type: 'shields', amt: 1 },
               { type: 'victory', amt: 3 }],
   },
   3: {

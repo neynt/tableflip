@@ -56,6 +56,30 @@
         path(d='M70 95l15 -30l-30 0Z' fill='#DBDCDB')
       symbol(id='chain')
         rect(x='0' y='0' width='100' height='100' rx='40' ry='40' fill='none' stroke='#000000' stroke-width='5')
+      symbol(id='goagain')
+        path(
+           sodipodi:type="arc"
+           style="fill:none;stroke:#ffffff;stroke-width:9.57759285;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:106, 30"
+           d="m 91.65247,47.359455 a 43.441227,42.759796 0 1 1 -86.8824543,0 43.441227,42.759796 0 1 1 86.8824543,0 z"
+           transform="matrix(-0.9322941,0,0,0.94715138,94.947057,0)"
+        )
+        path(
+           style="fill:#ffffff;fill-opacity:1;stroke:none"
+           d="m 0,50 10,-20 10,20 z"
+           id="path4770"
+           inkscape:connector-curvature="0")
+        path(
+           fill='#FFFFFF'
+           d="m 80,40 10,20 10,-20 z")
+      symbol(id='destroy')
+        path(d='M90 5L10 95' stroke='#000000' stroke-width='10')
+      symbol(id='library')
+        circle(cx='40' cy='35' r='30' fill='#59AB55' stroke='#44854F' stroke-width='5')
+        circle(cx='50' cy='50' r='30' fill='#59AB55' stroke='#44854F' stroke-width='5')
+        circle(cx='60' cy='65' r='30' fill='#E4EAC0' stroke='#44854F' stroke-width='5')
+      symbol(id='mausoleum')
+        rect(x='20' y='5' width='60' height='90' rx='10' ry='10' fill='#858779' stroke='#000000' stroke-width='5')
+        path(d='M15 0l40 60m-40 0l40 -60' stroke='#FF0000' stroke-width='5')
     g(v-for='component in components')
       svg(viewBox='0 0 100 100' :x='component.x' :y='component.y' :width='component.size' :height='component.size')
         use(:xlink:href='component.id')
@@ -185,9 +209,35 @@ export default {
               text: amt,
             }];
           }
-        } else if (e.type === 'guild') {
+        } else if (e.type === 'destroy_resource') {
           return [{
-            id: '#guild',
+            id: e.colour === 1 ? '#browncard' : '#greycard',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#destroy',
+            x: 0,
+            y: 0,
+            size: 100,
+          }];
+        } else if (e.type === 'take_coins') {
+          return [{
+            id: '#coin',
+            x: 0,
+            y: 0,
+            size: 100,
+            text: e.amt,
+          }, {
+            id: '#destroy',
+            x: 0,
+            y: 0,
+            size: 100,
+          }];
+        } else if (e.type === 'guild' || e.type === 'goagain' ||
+                   e.type === 'library' || e.type === 'mausoleum') {
+          return [{
+            id: `#${e.type}`,
             x: 0,
             y: 0,
             size: 100,

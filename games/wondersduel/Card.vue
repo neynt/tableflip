@@ -1,14 +1,14 @@
 <template lang='pug'>
 .card
-  .face(v-if='card > 0')
-    .header(v-bind:class='header_dict(card)')
-      GameSymbol(v-for='effect in rules.cards[card].effects' :effect='effect' size='20')
-      GameSymbol(v-if='rules.cards[card].chain' symbol='chain' :amt='rules.cards[card].chain' size='20')
+  .face(v-if='data' v-bind:class='width_dict')
+    .header(v-bind:class='header_dict(data)')
+      GameSymbol(v-for='effect in data.effects' :key='effect.type' :effect='effect' size='20')
+      GameSymbol(v-if='data.chain' symbol='chain' :amt='data.chain' size='20')
     .cost
-      GameSymbol(v-for='r in cost(card)' :symbol='r.r' size='12' :amt='r.amt')
-    .cost(v-if='rules.cards[card].chain_cost')
-      GameSymbol(symbol='chain' size='12' :amt='rules.cards[card].chain_cost')
-    span.title {{ rules.cards[card].name }}
+      GameSymbol(v-for='r in cost(data)' :key='r.r' :symbol='r.r' size='12' :amt='r.amt')
+    .cost(v-if='data.chain_cost')
+      GameSymbol(symbol='chain' size='12' :amt='data.chain_cost')
+    span.title {{ data.name }}
   .space(v-else-if='card === 0') &nbsp;
   .back(v-else v-bind:class='back_dict(age)') &nbsp;
 </template>
@@ -20,11 +20,22 @@ import rules from './rules';
 const resource_list = [null, 'wood', 'clay', 'brick', 'glass', 'paper'];
 
 export default {
-  props: ['card', 'age'],
+  props: ['card', 'wonder', 'age'],
   components: { GameSymbol },
   computed: {
     rules() {
       return rules;
+    },
+    data() {
+      if (this.card && this.card > 0) {
+        return rules.cards[this.card];
+      } else if (this.wonder) {
+        return rules.wonders[this.wonder];
+      }
+      return null;
+    },
+    width_dict() {
+      return { wonder: this.wonder !== undefined };
     },
   },
   methods: {
@@ -35,8 +46,8 @@ export default {
         age3: age === 3,
       };
     },
-    header_dict(card) {
-      const colour = rules.cards[card].colour;
+    header_dict(data) {
+      const colour = data.colour;
       return {
         brown: colour === 1,
         grey: colour === 2,
@@ -45,10 +56,11 @@ export default {
         yellow: colour === 5,
         blue: colour === 6,
         purple: colour === 7,
+        wondercolour: colour === undefined,
       };
     },
-    cost(card) {
-      const c = rules.cards[card].cost;
+    cost(data) {
+      const c = data.cost;
       const rs = [];
       if (c[0] > 0) {
         rs.push({ r: 'coin', amt: c[0] });
@@ -90,6 +102,9 @@ export default {
   position: relative;
   border-radius: 5px;
 }
+.card .wonder {
+  width: 160px;
+}
 .card .face {
   border: 1px solid black;
   position: relative;
@@ -104,12 +119,12 @@ export default {
   position: absolute;
   bottom: 5px;
   text-align: center;
-  width: 80px;
+  width: inherit;
 }
 .card .space {}
 .card .header {
   border: 1px solid black;
-  width: 80px;
+  width: inherit;
   height: 30px;
   margin: 0;
   margin-top: -1px;
@@ -152,5 +167,8 @@ export default {
 }
 .purple {
   background: #74568c;
+}
+.wondercolour {
+  background: #F4EA83;
 }
 </style>

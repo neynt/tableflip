@@ -13,19 +13,26 @@
         .row(v-for='(row, i) in state.tree')
           .card.card-align(v-if='i % 2 === 1') &nbsp;
           Card(v-for='card in row' :key='card' :card='card' :age='state.age')
-      .tree
+      .tree(v-if='false')
         .row
           Card(v-for='card in 73' :key='card' :card='card')
+      .tree(v-if='true')
+        .row
+          Card(v-for='wonder in 12' :key='wonder' :wonder='wonder')
       hr
     .city(v-for='player in [0, 1]')
       h2 {{ username(player) }}
         span(v-if='state.current === player') *
       p(v-if='state.unbuilt_wonders[player].length')
         strong Unbuilt wonders:
-        span(v-for='w in state.unbuilt_wonders[player]') {{ rules.wonders[w].name }}
+        .tree
+          .row
+            Card(v-for='w in state.unbuilt_wonders[player]' :key='w' :wonder='w')
       p(v-if='state.wonders[player].length')
         strong Built wonders:
-        span(v-for='w in state.wonders[player]') {{ rules.wonders[w].name }}
+        .tree
+          .row
+            Card(v-for='w in state.wonders[player]' :key='w' :wonder='w')
       hr
 </template>
 
