@@ -54,6 +54,8 @@
         path(d='M30 5l15 30l-30 0Z' fill='#DBDCDB')
         path(d='M70 20L30 80' stroke='#DDDDDD' stroke-width='10')
         path(d='M70 95l15 -30l-30 0Z' fill='#DBDCDB')
+      symbol(id='chain')
+        rect(x='0' y='0' width='100' height='100' rx='40' ry='40' fill='none' stroke='#000000' stroke-width='5')
     g(v-for='component in components')
       svg(viewBox='0 0 100 100' :x='component.x' :y='component.y' :width='component.size' :height='component.size')
         use(:xlink:href='component.id')
@@ -87,7 +89,7 @@ export default {
           x: 0,
           y: 0,
           size: 100,
-          text: '1',
+          text: this.amt,
         }];
       } else if (this.effect) {
         const e = this.effect;

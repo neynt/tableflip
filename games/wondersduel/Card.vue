@@ -3,6 +3,11 @@
   .face(v-if='card > 0')
     .header(v-bind:class='header_dict(card)')
       GameSymbol(v-for='effect in rules.cards[card].effects' :effect='effect' size='20')
+      GameSymbol(v-if='rules.cards[card].chain' symbol='chain' :amt='rules.cards[card].chain' size='20')
+    .cost
+      GameSymbol(v-for='r in cost(card)' :symbol='r.r' size='12' :amt='r.amt')
+    .cost(v-if='rules.cards[card].chain_cost')
+      GameSymbol(symbol='chain' size='12' :amt='rules.cards[card].chain_cost')
     span.title {{ rules.cards[card].name }}
   .space(v-else-if='card === 0') &nbsp;
   .back(v-else v-bind:class='back_dict(age)') &nbsp;
@@ -11,6 +16,8 @@
 <script>
 import GameSymbol from './GameSymbol';
 import rules from './rules';
+
+const resource_list = [null, 'wood', 'clay', 'brick', 'glass', 'paper'];
 
 export default {
   props: ['card', 'age'],
@@ -39,6 +46,19 @@ export default {
         blue: colour === 6,
         purple: colour === 7,
       };
+    },
+    cost(card) {
+      const c = rules.cards[card].cost;
+      const rs = [];
+      if (c[0] > 0) {
+        rs.push({ r: 'coin', amt: c[0] });
+      }
+      for (let i = 1; i <= 5; i += 1) {
+        for (let j = 0; j < c[i]; j += 1) {
+          rs.push({ r: resource_list[i] });
+        }
+      }
+      return rs;
     },
   },
 };
@@ -101,6 +121,16 @@ export default {
   margin: 3px;
   width: auto;
   height: 20px;
+}
+.card .cost {
+  padding: 0px 2px;
+  height: 15px;
+}
+.card .cost .game-symbol {
+  display: inline-block;
+  margin: 1px;
+  width: auto;
+  height: 15px;
 }
 .brown {
   background: #703421;
