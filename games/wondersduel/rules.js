@@ -874,6 +874,10 @@ function victory_count(state, player) {
     }
   }
   all_effects(state, player, add_victory);
+  total += Math.floor(state.coins[player] / 3);
+  if ((state.military > 0 && player === 0) || (state.military < 0 && player === 1)) {
+    total += [0, 2, 2, 5, 5, 5, 10, 10, 10, 0][Math.abs(state.military)];
+  }
   return total;
 }
 
@@ -1017,6 +1021,9 @@ function is_action_legal(view, action) {
     return view.progress_choice.includes(action.progress);
   }
   if (view.destroy_resource) {
+    if (action.type === 'pass') {
+      return true;
+    }
     if (action.type !== 'destroy') {
       return false;
     }
@@ -1027,6 +1034,9 @@ function is_action_legal(view, action) {
     return view.city[1 - view.player].includes(action.card);
   }
   if (view.mausoleum) {
+    if (action.type === 'pass') {
+      return true;
+    }
     if (action.type !== 'resurrect') {
       return false;
     }
@@ -1135,7 +1145,12 @@ function perform_action(original_state, player, action) {
     advance_turn = false;
   } else if (action.type === 'pass') {
     state.first_turn = false;
-    state.current = 1 - state.current;
+    if (state.mausoleum) {
+      delete state.mausoleum;
+    }
+    if (state.destroy_resource) {
+      delete state.destroy_resource;
+    }
   } else if (action.type === 'construct') {
     const cost = card_coin_cost(state, player, action.card);
     state.coins[player] -= cost;

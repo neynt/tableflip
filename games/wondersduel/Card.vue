@@ -1,6 +1,6 @@
 <template lang='pug'>
-.card
-  .face(v-if='data' v-bind:class='width_dict')
+.card(v-bind:class='width_dict')
+  .face(v-if='data')
     .header(v-bind:class='header_dict(data)')
       GameSymbol(v-for='effect in data.effects' :key='effect.type' :effect='effect' size='20')
       GameSymbol(v-if='data.chain' symbol='chain' :amt='data.chain' size='20')
@@ -90,19 +90,19 @@ export default {
   display: inline-block;
   vertical-align: top;
   margin: 2px;
+  width: 80px;
 }
 .card-align {
   width: 40px;
   height: 120px;
 }
 .card div {
-  width: 80px;
   height: 120px;
   word-wrap: break-word;
   position: relative;
   border-radius: 5px;
 }
-.card .wonder {
+.card.wonder {
   width: 160px;
 }
 .card .face {
@@ -119,17 +119,23 @@ export default {
   position: absolute;
   bottom: 5px;
   text-align: center;
-  width: inherit;
+  width: 80px;
+}
+.card.wonder .face .title {
+  width: 160px;
 }
 .card .space {}
 .card .header {
   border: 1px solid black;
-  width: inherit;
+  width: 80px;
   height: 30px;
   margin: 0;
   margin-top: -1px;
   margin-left: -1px;
   text-align: center;
+}
+.card.wonder .header {
+  width: 160px;
 }
 .card .header .game-symbol {
   display: inline-block;
