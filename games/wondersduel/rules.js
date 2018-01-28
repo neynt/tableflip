@@ -20,6 +20,7 @@
  *   mausoleum: true, // select a discarded card
  *   destroy_resource: colour, // select card of that colour to destroy
  *   first_turn: true, // first turn of age, player can pass if they want
+ *   goagain: true, // player will go again instead of turn ending
  * }
  *
  * View is same as state, but odd rows in tree are hidden if the card is not accessible
@@ -949,7 +950,7 @@ function coin_cost(state, player, cost, ignore_two) {
     let best = null;
     for (let i = 1; i < resource_opt.length; i += 1) {
       const r = resource_opts[i];
-      if (remaining_cost[r] !== 0 && trading_cost[r] > trading_cost[best]) {
+      if (remaining_cost[r] > 0 && trading_cost[r] > trading_cost[best]) {
         best = r;
       }
     }
@@ -971,6 +972,33 @@ function coin_cost(state, player, cost, ignore_two) {
     total += remaining_cost[i] * trading_cost[i];
   }
   return total;
+}
+
+function has_special_effect(state, player, type) {
+  return state.progress[player].some(
+      p => p.effects.some(e => e.type === type)) ||
+    state.wonders[player].some(
+      w => w.effects.some(e => e.type === type));
+}
+
+function card_coin_cost(state, player, card_id) {
+  const card = CARDS[card_id];
+  if (card.chain_cost) {
+    for (let i = 0; i < state.city[player].length; i += 1) {
+      const other_card = CARDS[state.city[player][i]];
+      if (other_card.chain === card.chain_cost) {
+        return 0;
+      }
+    }
+  }
+  const ignore_two = card.colour === 6 && has_special_effect(state, player, 'masonry');
+  return coin_cost(state, player, card.cost, ignore_two);
+}
+
+function wonder_coin_cost(state, player, wonder_id) {
+  const wonder = WONDERS[wonder_id];
+  const ignore_two = has_special_effect(state, player, 'architecture');
+  return coin_cost(state, player, wonder.cost, ignore_two);
 }
 
 function is_action_legal(view, action) {
@@ -1010,6 +1038,12 @@ function is_action_legal(view, action) {
   if (action.type === 'pass') {
     return view.first_turn; // Valid iff it's the first turn of the age
   }
+  if (action.type === 'wonder') {
+    if (!view.unbuilt_wonders[view.player].includes(action.wonder)) {
+      return false;
+    }
+    return view.coins[view.player] >= wonder_coin_cost(view, view.player, action.wonder);
+  }
   if (!card_available(view.tree, action.card)) {
     return false;
   }
@@ -1017,22 +1051,7 @@ function is_action_legal(view, action) {
     return true;
   }
   if (action.type === 'construct') {
-    const card = CARDS[action.card];
-    const ignore_two = card.colour === 6 &&
-        view.progress[view.player].some(
-            p => p.effects.some(e => e.type === 'masonry'));
-    const coins_required = coin_cost(view, view.player, card.cost, ignore_two);
-    return view.coins[view.player] >= coins_required;
-  }
-  if (action.type === 'wonder') {
-    if (!view.unbuilt_wonders[view.player].includes(action.wonder)) {
-      return false;
-    }
-    const wonder = WONDERS[action.wonder];
-    const ignore_two = view.progress[view.player].some(
-            p => p.effects.some(e => e.type === 'architecture'));
-    const coins_required = coin_cost(view, view.player, wonder.cost, ignore_two);
-    return view.coins[view.player] >= coins_required;
+    return view.coins[view.player] >= card_coin_cost(view, view.player, action.card);
   }
   return false;
 }
@@ -1070,6 +1089,15 @@ function deal_tree(age) {
     const age3 = shuffle(range(47, 66)).slice(0, 17);
     const guilds = shuffle(range(67, 73)).slice(0, 3);
     deck = shuffle(age3.concat(guilds));
+    pattern = [
+      [false, true, true],
+      [true, true, true],
+      [true, true, true, true],
+      [true, false, true],
+      [true, true, true, true],
+      [true, true, true],
+      [false, true, true],
+    ];
   }
   // Deal deck according to tree
   return pattern.map(r => r.map(c => (c ? deck.pop() : 0)));
@@ -1080,6 +1108,11 @@ function perform_action(original_state, player, action) {
     throw 'Illegal action';
   }
   const state = JSON.parse(JSON.stringify(original_state));
+  let build_effects = [];
+  let trade_coins = 0;
+
+  let advance_turn = true;
+
   if (action.type === 'draft_wonder') {
     state.unbuilt_wonders[player].push(action.wonder);
     const index = state.wonders_draft.indexOf(action.wonder);
@@ -1101,7 +1134,147 @@ function perform_action(original_state, player, action) {
         state.wonders_draft = wonders.slice(0, 4);
       }
     }
+    advance_turn = false;
+  } else if (action.type === 'pass') {
+    state.first_turn = false;
+    state.current = 1 - state.current;
+  } else if (action.type === 'construct') {
+    const cost = card_coin_cost(state, player, action.card);
+    state.coins[player] -= cost;
+    trade_coins = cost - CARDS[action.card].cost[0];
+    const loc = card_location(state.tree, action.card);
+    state.tree[loc.row][loc.col] = 0;
+    state.city[player].push(action.card);
+    build_effects = CARDS[action.card].effects;
+    state.first_turn = false;
+  } else if (action.type === 'discard') {
+    const loc = card_location(state.tree, action.card);
+    state.tree[loc.row][loc.col] = 0;
+    state.discard.push(action.card);
+    state.coins[player] += 2 + count_coloured_buildings(state, player, 5);
+    state.first_turn = false;
+  } else if (action.type === 'wonder') {
+    const cost = wonder_coin_cost(state, player, action.wonder);
+    state.coins[player] -= cost;
+    // no trade_coins because wonders never have coin costs
+    const loc = card_location(state.tree, action.card);
+    state.tree[loc.row][loc.col] = 0;
+    build_effects = WONDERS[action.wonder].effects;
+    state.first_turn = false;
+    if (has_special_effect(state, player, 'theology')) {
+      state.goagain = true;
+    }
+  } else if (action.type === 'select_progress') {
+    state.progress[player].push(action.progress);
+    build_effects = PROGRESS[action.progress].effects;
+    const index = state.unbuilt_progress.indexOf(action.progress);
+    if (index >= 0) {
+      state.unbuilt_progress.splice(index, 1);
+    }
+    delete state.progress_choice;
+  } else if (action.type === 'destroy') {
+    const index = state.city[1 - player].indexOf(action.card);
+    state.city[1 - player].splice(index, 1);
+    delete state.destroy_resource;
+  } else if (action.type === 'resurrect') {
+    const index = state.discard.indexOf(action.card);
+    state.discard.splice(index, 1);
+    state.city[player].push(action.card);
+    build_effects = CARDS[action.card].effects;
+    delete state.mausoleum;
   }
+
+  if (trade_coins > 0 && has_special_effect(state, 1 - player, 'economy')) {
+    state.coins[1 - player] += trade_coins;
+  }
+
+  // Apply all new effects
+  if (build_effects.length > 0) {
+    for (let i = 0; i < build_effects.length; i += 1) {
+      const e = build_effects[i];
+      if (e.type === 'shields') {
+        let amt = e.amt;
+        if (has_special_effect(state, player, 'strategy')) {
+          amt += 1;
+        }
+        state.military += (1 - (state.current * 2)) * amt;
+        if (state.military <= -6 && state.military_tokens[0]) {
+          state.coins[0] -= 5;
+          state.military_tokens[0] = false;
+        }
+        if (state.military <= -3 && state.military_tokens[1]) {
+          state.coins[0] -= 2;
+          state.military_tokens[1] = false;
+        }
+        if (state.military >= 3 && state.military_tokens[2]) {
+          state.coins[1] -= 2;
+          state.military_tokens[2] = false;
+        }
+        if (state.military >= 6 && state.military_tokens[3]) {
+          state.coins[1] -= 5;
+          state.military_tokens[3] = false;
+        }
+      } else if (e.type === 'coins') {
+        state.coins[player] += e.amt;
+      } else if (e.type === 'coins_fn') {
+        state.coins[player] += e.fn(state, player);
+      } else if (e.type === 'goagain') {
+        state.goagain = true;
+      } else if (e.type === 'library') {
+        const progress = shuffle(remaining_progress(state));
+        state.progress_choice = progress.slice(0, 3);
+        advance_turn = false;
+      } else if (e.type === 'mausoleum') {
+        state.mausoleum = true;
+        advance_turn = false;
+      } else if (e.type === 'destroy_resource') {
+        state.destroy_resource = e.colour;
+        advance_turn = false;
+      } else if (e.type === 'take_coins') {
+        state.coins[1 - player] -= e.amt;
+      } else if (e.type === 'science') {
+        let count = 0;
+        for (let j = 0; j < state.city[player].length; j += 1) {
+          const card = CARDS[state.city[player][j]];
+          if (card.effects.some(e2 => e2.science === e.science)) {
+            count += 1;
+          }
+        }
+        if (count === 2) {
+          state.progress_choice = state.unbuilt_progress;
+          advance_turn = false;
+        }
+      }
+    }
+  }
+
+  // Is age over?
+  if (!state.tree[0].some(c => c > 0)) {
+    if (state.age < 3) {
+      state.age += 1;
+      state.tree = deal_tree(state.age);
+      delete state.goagain;
+      state.first_turn = true;
+      // Determine first player
+      if (state.military > 0) {
+        state.current = 1;
+      } else if (state.military < 0) {
+        state.current = 0;
+      } else {
+        state.current = 1 - state.current; // Same player goes again
+      }
+    }
+    advance_turn = false;
+  }
+
+  if (advance_turn) {
+    if (state.goagain) {
+      delete state.goagain;
+    } else {
+      state.current = 1 - state.current;
+    }
+  }
+
   return state;
 }
 

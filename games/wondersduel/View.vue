@@ -7,8 +7,9 @@
         span(v-for='p in state.unbuilt_progress') {{ rules.progress[p].name }} 
       p(v-if='state.wonders_draft')
         strong Select a wonder:
-        span(v-for='w in state.wonders_draft')
-          a(@click='draft_wonder(w)') {{ rules.wonders[w].name }}
+        .tree
+          .row
+            Card(v-for='w in state.wonders_draft' :key='w' :wonder='w' @click='draft_wonder(w)')
       .tree(v-if='state.tree.length')
         .row(v-for='(row, i) in state.tree')
           .card.card-align(v-if='i % 2 === 1') &nbsp;
@@ -16,7 +17,7 @@
       .tree(v-if='false')
         .row
           Card(v-for='card in 73' :key='card' :card='card')
-      .tree(v-if='true')
+      .tree(v-if='false')
         .row
           Card(v-for='wonder in 12' :key='wonder' :wonder='wonder')
       hr
