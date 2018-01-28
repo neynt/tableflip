@@ -776,7 +776,7 @@ function available(tree, row, col) {
   if (row < 0 || col < 0 || row >= tree.length || col >= tree[row].length) return false;
   if (tree[row][col] <= 0) return false;
   if (row === tree.length - 1) return true;
-  if (tree[row + 1][col] !== 0) return false;
+  if (col < tree[row + 1].length && tree[row + 1][col] !== 0) return false;
   if (row % 2 === 0 && col > 0 && tree[row + 1][col - 1] !== 0) return false;
   if (row % 2 === 1 && col + 1 < tree[row + 1].length &&
       tree[row + 1][col + 1] !== 0) return false;
