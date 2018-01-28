@@ -83,7 +83,7 @@
     g(v-for='component in components')
       svg(viewBox='0 0 100 100' :x='component.x' :y='component.y' :width='component.size' :height='component.size')
         use(:xlink:href='component.id')
-        text(v-if='component.text' x='50' y='75' text-anchor='middle') {{ component.text }}
+        text(v-if='component.text !== undefined' x='50' y='75' text-anchor='middle') {{ component.text }}
 </template>
 
 <script>

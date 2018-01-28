@@ -838,6 +838,21 @@ function player_view(state, player) {
   return view;
 }
 
+function all_effects(state, player, fn) {
+  for (let i = 0; i < state.city[player].length; i += 1) {
+    const card = CARDS[state.city[player][i]];
+    card.effects.forEach(fn);
+  }
+  for (let i = 0; i < state.wonders[player].length; i += 1) {
+    const wonder = WONDERS[state.wonders[player][i]];
+    wonder.effects.forEach(fn);
+  }
+  for (let i = 0; i < state.progress[player].length; i += 1) {
+    const progress = PROGRESS[state.progress[player][i]];
+    progress.effects.forEach(fn);
+  }
+}
+
 function science_count(state, player) {
   const distinct = [];
   function add_science(effect) {
@@ -845,14 +860,7 @@ function science_count(state, player) {
       distinct.push(effect.science);
     }
   }
-  for (let i = 0; i < state.city[player].length; i += 1) {
-    const card = CARDS[state.city[player][i]];
-    card.effects.forEach(add_science);
-  }
-  for (let i = 0; i < state.progress[player].length; i += 1) {
-    const progress = PROGRESS[state.progress[player][i]];
-    progress.effects.forEach(add_science);
-  }
+  all_effects(state, player, add_science);
   return distinct.length;
 }
 
@@ -865,18 +873,7 @@ function victory_count(state, player) {
       total += effect.fn(state, player);
     }
   }
-  for (let i = 0; i < state.city[player].length; i += 1) {
-    const card = CARDS[state.city[player][i]];
-    card.effects.forEach(add_victory);
-  }
-  for (let i = 0; i < state.wonders[player].length; i += 1) {
-    const wonder = WONDERS[state.wonders[player][i]];
-    wonder.effects.forEach(add_victory);
-  }
-  for (let i = 0; i < state.progress[player].length; i += 1) {
-    const progress = PROGRESS[state.progress[player][i]];
-    progress.effects.forEach(add_victory);
-  }
+  all_effects(state, player, add_victory);
   return total;
 }
 
@@ -932,25 +929,23 @@ function coin_cost(state, player, cost, ignore_two) {
   // trades (reduces trading cost), and resource options (applied later).
   const remaining_cost = cost.slice();
   const resource_opts = [];
-  for (let i = 0; i < state.city[player].length; i += 1) {
-    const card = CARDS[state.city[player][i]];
-    card.effects.forEach((effect) => {
-      if (effect.type === 'resource' && remaining_cost[effect.r] > 0) {
-        remaining_cost[effect.r] -= 1;
-      }
-      if (effect.type === 'resource_opt') {
-        resource_opts.push(effect.rs);
-      }
-      if (effect.type === 'trade') {
-        trading_cost[effect.r] = 1;
-      }
-    });
-  }
+  all_effects(state, player, (effect) => {
+    if (effect.type === 'resource' && remaining_cost[effect.r] > 0) {
+      remaining_cost[effect.r] -= 1;
+    }
+    if (effect.type === 'resource_opt') {
+      resource_opts.push(effect.rs);
+    }
+    if (effect.type === 'trade') {
+      trading_cost[effect.r] = 1;
+    }
+  });
   function use_resource_opt(resource_opt) {
     let best = null;
-    for (let i = 1; i < resource_opt.length; i += 1) {
-      const r = resource_opts[i];
-      if (remaining_cost[r] > 0 && trading_cost[r] > trading_cost[best]) {
+    for (let i = 0; i < resource_opt.length; i += 1) {
+      const r = resource_opt[i];
+      if (remaining_cost[r] > 0 &&
+          (best === null || trading_cost[r] > trading_cost[best])) {
         best = r;
       }
     }
@@ -975,10 +970,13 @@ function coin_cost(state, player, cost, ignore_two) {
 }
 
 function has_special_effect(state, player, type) {
-  return state.progress[player].some(
-      p => p.effects.some(e => e.type === type)) ||
-    state.wonders[player].some(
-      w => w.effects.some(e => e.type === type));
+  let yes = false;
+  all_effects(state, player, (e) => {
+    if (e.type === type) {
+      yes = true;
+    }
+  });
+  return yes;
 }
 
 function card_coin_cost(state, player, card_id) {
@@ -1038,14 +1036,14 @@ function is_action_legal(view, action) {
   if (action.type === 'pass') {
     return view.first_turn; // Valid iff it's the first turn of the age
   }
+  if (!card_available(view.tree, action.card)) {
+    return false;
+  }
   if (action.type === 'wonder') {
     if (!view.unbuilt_wonders[view.player].includes(action.wonder)) {
       return false;
     }
     return view.coins[view.player] >= wonder_coin_cost(view, view.player, action.wonder);
-  }
-  if (!card_available(view.tree, action.card)) {
-    return false;
   }
   if (action.type === 'discard') {
     return true;
@@ -1159,6 +1157,9 @@ function perform_action(original_state, player, action) {
     // no trade_coins because wonders never have coin costs
     const loc = card_location(state.tree, action.card);
     state.tree[loc.row][loc.col] = 0;
+    const index = state.unbuilt_wonders[player].indexOf(action.wonder);
+    state.unbuilt_wonders[player].splice(index, 1);
+    state.wonders[player].push(action.wonder);
     build_effects = WONDERS[action.wonder].effects;
     state.first_turn = false;
     if (has_special_effect(state, player, 'theology')) {
@@ -1291,5 +1292,6 @@ export default {
   cards: CARDS,
   wonders: WONDERS,
   progress: PROGRESS,
-  coin_cost,
+  card_coin_cost,
+  wonder_coin_cost,
 };
