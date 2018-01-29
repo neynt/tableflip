@@ -4,7 +4,7 @@
     button(@click='$router.push({ name: "LobbyPage" })') All lobbies
     br
     Spinner(v-if='!lobby')
-    .lobby-detail
+    .lobby-detail(v-else)
       .lobby-row
         .lobby-section
           h2 Game

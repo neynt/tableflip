@@ -14,6 +14,7 @@
  *   unbuilt_progress: [progress],
  *   military: int, // -9 to 9, positive towards player 1
  *   military_tokens: [bool], // four, (-8, -6), (-5, -3), (3, 5), (6, 8)
+ *   log: [action],
  *   // Below are params for special situations, unset normally
  *   wonders_draft: [wonder],
  *   progress_choice: [progress],
@@ -52,6 +53,16 @@
  * {
  *   type: "resurrect",
  *   card: card,
+ * }
+ *
+ * Log entries are either an action (with added player field) or one of:
+ * {
+ *   type: "age",
+ *   age: int,
+ * }
+ * {
+ *   type: "goagain",
+ *   player: int,
  * }
  */
 
@@ -815,6 +826,7 @@ function initial_state(players) {
     unbuilt_progress: [],
     military: 0,
     military_tokens: [true, true, true, true],
+    log: [],
   };
   // Select progress tokens
   const progress = shuffle(remaining_progress(state));
@@ -1078,33 +1090,33 @@ function deal_tree(age) {
   if (age === 1) {
     deck = shuffle(range(1, 23)).slice(0, 20);
     pattern = [
-      [false, false, true, true],
-      [false, true, true, true],
-      [false, true, true, true, true],
-      [true, true, true, true, true],
-      [true, true, true, true, true, true],
+      [0, 0, 1, 1],
+      [0, 1, 1, 1],
+      [0, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
     ];
   } else if (age === 2) {
     deck = shuffle(range(24, 46)).slice(0, 20);
     pattern = [
-      [true, true, true, true, true, true],
-      [true, true, true, true, true],
-      [false, true, true, true, true],
-      [false, true, true, true],
-      [false, false, true, true],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1],
+      [0, 1, 1, 1],
+      [0, 0, 1, 1],
     ];
   } else if (age === 3) {
     const age3 = shuffle(range(47, 66)).slice(0, 17);
     const guilds = shuffle(range(67, 73)).slice(0, 3);
     deck = shuffle(age3.concat(guilds));
     pattern = [
-      [false, true, true],
-      [true, true, true],
-      [true, true, true, true],
-      [true, false, true],
-      [true, true, true, true],
-      [true, true, true],
-      [false, true, true],
+      [0, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 0, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1],
+      [0, 1, 1],
     ];
   }
   // Deal deck according to tree
@@ -1122,6 +1134,7 @@ function perform_action(original_state, player, action) {
   let advance_turn = true;
 
   if (action.type === 'draft_wonder') {
+    state.log.push({ player, type: action.type, wonder: action.wonder });
     state.unbuilt_wonders[player].push(action.wonder);
     const index = state.wonders_draft.indexOf(action.wonder);
     state.wonders_draft.splice(index, 1);
@@ -1136,6 +1149,7 @@ function perform_action(original_state, player, action) {
         state.tree = deal_tree(state.age);
         delete state.wonders_draft;
         state.first_turn = true;
+        state.log.push({ type: 'age', age: state.age });
       } else {
         // Deal out next four wonders
         const wonders = shuffle(remaining_wonders(state));
@@ -1144,6 +1158,7 @@ function perform_action(original_state, player, action) {
     }
     advance_turn = false;
   } else if (action.type === 'pass') {
+    state.log.push({ player, type: action.type });
     state.first_turn = false;
     if (state.mausoleum) {
       delete state.mausoleum;
@@ -1152,6 +1167,7 @@ function perform_action(original_state, player, action) {
       delete state.destroy_resource;
     }
   } else if (action.type === 'construct') {
+    state.log.push({ player, type: action.type, card: action.card });
     const cost = card_coin_cost(state, player, action.card);
     state.coins[player] -= cost;
     trade_coins = cost - CARDS[action.card].cost[0];
@@ -1161,15 +1177,17 @@ function perform_action(original_state, player, action) {
     build_effects = CARDS[action.card].effects;
     state.first_turn = false;
   } else if (action.type === 'discard') {
+    state.log.push({ player, type: action.type, card: action.card });
     const loc = card_location(state.tree, action.card);
     state.tree[loc.row][loc.col] = 0;
     state.discard.push(action.card);
     state.coins[player] += 2 + count_coloured_buildings(state, player, 5);
     state.first_turn = false;
   } else if (action.type === 'wonder') {
+    state.log.push({ player, type: action.type, card: action.card, wonder: action.wonder });
     const cost = wonder_coin_cost(state, player, action.wonder);
     state.coins[player] -= cost;
-    // no trade_coins because wonders never have coin costs
+    trade_coins = cost;
     const loc = card_location(state.tree, action.card);
     state.tree[loc.row][loc.col] = 0;
     const index = state.unbuilt_wonders[player].indexOf(action.wonder);
@@ -1181,6 +1199,7 @@ function perform_action(original_state, player, action) {
       state.goagain = true;
     }
   } else if (action.type === 'select_progress') {
+    state.log.push({ player, type: action.type, progress: action.progress });
     state.progress[player].push(action.progress);
     build_effects = PROGRESS[action.progress].effects;
     const index = state.unbuilt_progress.indexOf(action.progress);
@@ -1189,10 +1208,12 @@ function perform_action(original_state, player, action) {
     }
     delete state.progress_choice;
   } else if (action.type === 'destroy') {
+    state.log.push({ player, type: action.type, card: action.card });
     const index = state.city[1 - player].indexOf(action.card);
     state.city[1 - player].splice(index, 1);
     delete state.destroy_resource;
   } else if (action.type === 'resurrect') {
+    state.log.push({ player, type: action.type, card: action.card });
     const index = state.discard.indexOf(action.card);
     state.discard.splice(index, 1);
     state.city[player].push(action.card);
@@ -1264,12 +1285,17 @@ function perform_action(original_state, player, action) {
     }
   }
 
+  for (let i = 0; i < 1; i += 1) {
+    state.coins[i] = Math.max(state.coins[i], 0);
+  }
+
   // Is age over?
-  if (!state.tree[0].some(c => c > 0)) {
+  if (state.tree.length > 0 && !state.tree[0].some(c => c > 0)) {
     if (state.age < 3) {
       state.age += 1;
       state.tree = deal_tree(state.age);
       delete state.goagain;
+      state.log.push({ type: 'age', age: state.age });
       state.first_turn = true;
       // Determine first player
       if (state.military > 0) {
@@ -1285,6 +1311,7 @@ function perform_action(original_state, player, action) {
 
   if (advance_turn) {
     if (state.goagain) {
+      state.log.push({ player, type: 'goagain' });
       delete state.goagain;
     } else {
       state.current = 1 - state.current;
@@ -1309,4 +1336,6 @@ export default {
   progress: PROGRESS,
   card_coin_cost,
   wonder_coin_cost,
+  science_count,
+  victory_count,
 };

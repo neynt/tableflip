@@ -26,9 +26,10 @@
         strong Select a wonder:
         .tree
           .row
-            Card(v-for='w in state.wonders_draft' :key='w' :wonder='w' @click='draft_wonder(w)')
+            Card(v-for='w in state.wonders_draft' :key='w' :wonder='w'
+                 @click.native='draft_wonder(w)')
       .tree(v-if='state.tree.length')
-        .row(v-for='(row, i) in state.tree')
+        .row(v-for='(row, i) in tree')
           .card.card-align(v-if='i % 2 === 1') &nbsp;
           Card(v-for='(card, j) in row' :key='card' :card='card' :age='state.age'
                @click.native='select_card(i, j)')
@@ -76,6 +77,12 @@
           .row
             Card(v-for='w in state.wonders[player]' :key='w' :wonder='w')
       hr
+    .log
+      p(v-for='e in state.log') {{ log_message(e) }}
+    .discards
+      .stack(v-for='stack in card_stacks(state.discard)')
+        .stack-card(v-for='card in stack')
+          Card(:card='card' @click.native='resurrect(card)')
 </template>
 
 <script>
@@ -89,6 +96,17 @@ export default {
   computed: {
     rules() {
       return rules;
+    },
+    tree() {
+      // Trim the tree
+      function trim(row) {
+        let end = row.length;
+        while (end > 0 && (row[end - 1] === 0 || row[end - 1].length === 0)) {
+          end -= 1;
+        }
+        return row.slice(0, end);
+      }
+      return trim(this.state.tree.map(trim));
     },
   },
   data() {
@@ -135,7 +153,7 @@ export default {
       this.onaction({ type: 'select_progress', progress });
     },
     destroy_resource(card) {
-      this.onaction({ type: 'destroy_resource', card });
+      this.onaction({ type: 'destroy', card });
     },
     military_token_x(i) {
       if (i <= 1) {
@@ -157,7 +175,38 @@ export default {
         return 'The game is a tie.';
       }
       if (winners.length === 1) {
-        return `The winner is ${this.username(winners[0])}.`;
+        if (Math.abs(this.state.military) >= 9) {
+          return `The winner is ${this.username(winners[0])} by military.`;
+        } else if (rules.science_count(this.state, 0) >= 6 ||
+                   rules.science_count(this.state, 1) >= 6) {
+          return `The winner is ${this.username(winners[0])} by science.`;
+        }
+        const scores = [rules.victory_count(this.state, 0), rules.victory_count(this.state, 1)];
+        return `The winner is ${this.username(winners[0])} by victory points, ` +
+          `${scores[winners[0]]} to ${scores[1 - winners[0]]}.`;
+      }
+      return '';
+    },
+    log_message(e) {
+      const u = e.type !== 'age' ? this.username(e.player) : null;
+      if (e.type === 'construct') {
+        return `${u} built ${rules.cards[e.card].name}.`;
+      } else if (e.type === 'discard') {
+        return `${u} discarded ${rules.cards[e.card].name} for coins.`;
+      } else if (e.type === 'wonder') {
+        return `${u} used ${rules.cards[e.card].name} to build ${rules.wonders[e.wonder].name}.`;
+      } else if (e.type === 'pass') {
+        return `${u} passed.`;
+      } else if (e.type === 'draft_wonder') {
+        return `${u} chose ${rules.wonders[e.wonder].name}.`;
+      } else if (e.type === 'destroy') {
+        return `${u} destroyed ${rules.cards[e.card].name}.`;
+      } else if (e.type === 'resurrect') {
+        return `${u} built ${rules.cards[e.card].name} from the discard pile.`;
+      } else if (e.type === 'age') {
+        return `Age ${new Array(e.age + 1).join('I')} has begun.`;
+      } else if (e.type === 'goagain') {
+        return `${u} took another turn.`;
       }
       return '';
     },
