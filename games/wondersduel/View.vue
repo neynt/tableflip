@@ -1,9 +1,10 @@
 <template lang='pug'>
   .wondersduel
     h1 7 Wonders Duel
-    h2(v-if='rules.is_game_finished(state)') {{ winner_string() }}
+    p
+      strong {{ prompt() }}
     .shared
-      svg(viewBox='0 0 570 100' width='570' height='120')
+      svg(viewBox='0 0 570 120' width='570' height='120')
         GameSymbol(size='20' symbol='victory' amt='10' x='65' y='30')
         GameSymbol(size='20' symbol='victory' amt='5' x='155' y='30')
         GameSymbol(size='20' symbol='victory' amt='2' x='230' y='30')
@@ -33,31 +34,32 @@
           .card.card-align(v-if='i % 2 === 1') &nbsp;
           Card(v-for='(card, j) in row' :key='card' :card='card' :age='state.age'
                @click.native='select_card(i, j)')
-      .options(v-if='state.player === state.current && !rules.is_game_finished(state)')
-        .pass-option(v-if='state.first_turn || state.destroy_resource || state.mausoleum')
-          button(@click='pass()') Pass
-        .selection-options(v-if='selection !== null')
-          Card(:card='selection')
-          br
-          button(@click='construct()') Construct 
-            GameSymbol(size='12' symbol='coin'
-                       :amt='rules.card_coin_cost(state, state.player, selection)')
-          button(@click='discard()') Discard
-          button(v-for='w in state.unbuilt_wonders[state.player]' @click='wonder(w)')
-            | Build {{ rules.wonders[w].name }} 
-            GameSymbol(size='12' symbol='coin'
-                       :amt='rules.wonder_coin_cost(state, state.player, w)')
-        .progress-options(v-if='state.progress_choice')
-          p
-            span(v-for='p in state.progress_choice')
-              a(@click='select_progress(p)') {{ rules.progress[p].name }}
-      hr
-      .tree(v-if='false')
-        .row
-          Card(v-for='card in 73' :key='card' :card='card')
-      .tree(v-if='false')
-        .row
-          Card(v-for='wonder in 12' :key='wonder' :wonder='wonder')
+    .options(v-if='state.player === state.current && !rules.is_game_finished(state)')
+      .pass-option(v-if='state.first_turn || state.destroy_resource || state.mausoleum')
+        button(@click='pass()') Pass
+      .selection-options(v-if='selection !== null')
+        Card(:card='selection')
+        br
+        button(@click='construct()') Construct 
+          GameSymbol(size='12' symbol='coin'
+                     :amt='rules.card_coin_cost(state, state.player, selection)')
+        button(@click='discard()') Discard
+        button(v-if='state.wonders[0].length + state.wonders[1].length < 7'
+               v-for='w in state.unbuilt_wonders[state.player]' @click='wonder(w)')
+          | Build {{ rules.wonders[w].name }} 
+          GameSymbol(size='12' symbol='coin'
+                     :amt='rules.wonder_coin_cost(state, state.player, w)')
+      .progress-options(v-if='state.progress_choice')
+        p
+          span(v-for='p in state.progress_choice')
+            a(@click='select_progress(p)') {{ rules.progress[p].name }}
+    hr
+    .tree(v-if='false')
+      .row
+        Card(v-for='card in 73' :key='card' :card='card')
+    .tree(v-if='false')
+      .row
+        Card(v-for='wonder in 12' :key='wonder' :wonder='wonder')
     .city(v-for='player in [state.player, 1 - state.player]')
       h2 {{ username(player) }} 
         GameSymbol(size='20' symbol='coin' :amt='state.coins[player]')
@@ -66,16 +68,16 @@
       .stack(v-for='stack in card_stacks(state.city[player])')
         .stack-card(v-for='card in stack')
           Card(:card='card' @click.native='destroy_resource(card)')
-      p(v-if='state.unbuilt_wonders[player].length')
-        strong Unbuilt wonders:
-        .tree
-          .row
-            Card(v-for='w in state.unbuilt_wonders[player]' :key='w' :wonder='w')
       p(v-if='state.wonders[player].length')
-        strong Built wonders:
+        strong Built wonders
         .tree
           .row
             Card(v-for='w in state.wonders[player]' :key='w' :wonder='w')
+      p(v-if='state.unbuilt_wonders[player].length')
+        strong Unbuilt wonders
+        .tree
+          .row
+            Card(v-for='w in state.unbuilt_wonders[player]' :key='w' :wonder='w')
       hr
     .log
       p(v-for='e in state.log') {{ log_message(e) }}
@@ -155,6 +157,9 @@ export default {
     destroy_resource(card) {
       this.onaction({ type: 'destroy', card });
     },
+    resurrect(card) {
+      this.onaction({ type: 'resurrect', card });
+    },
     military_token_x(i) {
       if (i <= 1) {
         return 35 + (i * 90);
@@ -169,23 +174,37 @@ export default {
       }
       return stacks;
     },
-    winner_string() {
-      const winners = rules.winners(this.state);
-      if (winners.length === 2) {
-        return 'The game is a tie.';
-      }
-      if (winners.length === 1) {
-        if (Math.abs(this.state.military) >= 9) {
-          return `The winner is ${this.username(winners[0])} by military.`;
-        } else if (rules.science_count(this.state, 0) >= 6 ||
-                   rules.science_count(this.state, 1) >= 6) {
-          return `The winner is ${this.username(winners[0])} by science.`;
+    prompt() {
+      if (rules.is_game_finished(this.state)) {
+        const winners = rules.winners(this.state);
+        if (winners.length === 2) {
+          return 'The game is a tie.';
         }
-        const scores = [rules.victory_count(this.state, 0), rules.victory_count(this.state, 1)];
-        return `The winner is ${this.username(winners[0])} by victory points, ` +
-          `${scores[winners[0]]} to ${scores[1 - winners[0]]}.`;
+        if (winners.length === 1) {
+          if (Math.abs(this.state.military) >= 9) {
+            return `The winner is ${this.username(winners[0])} by military.`;
+          } else if (rules.science_count(this.state, 0) >= 6 ||
+                     rules.science_count(this.state, 1) >= 6) {
+            return `The winner is ${this.username(winners[0])} by science.`;
+          }
+          const scores = [rules.victory_count(this.state, 0),
+                          rules.victory_count(this.state, 1)];
+          return `The winner is ${this.username(winners[0])} by victory points, ` +
+            `${scores[winners[0]]} to ${scores[1 - winners[0]]}.`;
+        }
       }
-      return '';
+      const u = this.username(this.state.current);
+      if (this.state.wonders_draft) {
+        return `${u}, choose a wonder.`;
+      } else if (this.state.progress_choice) {
+        return `${u}, choose a progress token.`;
+      } else if (this.state.mausoleum) {
+        return `${u}, choose a card from the discard to build.`;
+      } else if (this.state.destroy_resource) {
+        const colour = this.state.destroy_resource === 1 ? 'brown' : 'grey';
+        return `${u}, choose a ${colour} card to destroy.`;
+      }
+      return `${u}, choose a card to play or discard, or build a wonder.`;
     },
     log_message(e) {
       const u = e.type !== 'age' ? this.username(e.player) : null;

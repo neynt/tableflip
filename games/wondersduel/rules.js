@@ -1065,6 +1065,9 @@ function is_action_legal(view, action) {
     if (!view.unbuilt_wonders[view.player].includes(action.wonder)) {
       return false;
     }
+    if (view.wonders[0].length + view.wonders[1].length >= 7) {
+      return false;
+    }
     return view.coins[view.player] >= wonder_coin_cost(view, view.player, action.wonder);
   }
   if (action.type === 'discard') {
