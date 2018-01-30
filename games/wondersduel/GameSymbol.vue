@@ -2,26 +2,19 @@
 svg.game-symbol(:viewBox='viewBox' :width='size * widthMultiplier' :height='size')
   defs
     symbol(id='coin')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#E3C54A')
+      circle(cx='50' cy='50' r='45' fill='#E3C54A' stroke='#000000' stroke-width='5')
     symbol(id='wood')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#598435')
+      circle(cx='50' cy='50' r='45' fill='#598435' stroke='#000000' stroke-width='5')
     symbol(id='clay')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#CF5B32')
+      circle(cx='50' cy='50' r='45' fill='#CF5B32' stroke='#000000' stroke-width='5')
     symbol(id='brick')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#82827E')
+      circle(cx='50' cy='50' r='45' fill='#82827E' stroke='#000000' stroke-width='5')
     symbol(id='glass')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#47C2E1')
+      circle(cx='50' cy='50' r='45' fill='#47C2E1' stroke='#000000' stroke-width='5')
     symbol(id='paper')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#E9C890')
+      circle(cx='50' cy='50' r='45' fill='#E9C890' stroke='#000000' stroke-width='5')
     symbol(id='shield')
-      circle(cx='50' cy='50' r='50' fill='#000000')
-      circle(cx='50' cy='50' r='45' fill='#BD3C33')
+      circle(cx='50' cy='50' r='45' fill='#BD3C33' stroke='#000000' stroke-width='5')
       path(d='M10 0L90 100M90 0L10 100' stroke='#DDDDDD' stroke-width='10')
     symbol(id='science')
       circle(cx='50' cy='50' r='50' fill='#B07941')
@@ -83,6 +76,17 @@ svg.game-symbol(:viewBox='viewBox' :width='size * widthMultiplier' :height='size
     symbol(id='mausoleum')
       rect(x='20' y='5' width='60' height='90' rx='10' ry='10' fill='#858779' stroke='#000000' stroke-width='5')
       path(d='M15 0l40 60m-40 0l40 -60' stroke='#FF0000' stroke-width='5')
+    symbol(id='progress')
+      circle(cx='50' cy='50' r='45' fill='#59AB55' stroke='#44854F' stroke-width='5')
+    symbol(id='ignoretwo')
+      circle(cx='35' cy='15' r='12' fill='#593E25' stroke='#000000' stroke-width='1')
+      path(d='M20 0l30 30m-30 0l30 -30' stroke='#FF0000' stroke-width='5')
+      circle(cx='35' cy='50' r='12' fill='#858779' stroke='#000000' stroke-width='1')
+      path(d='M20 35l30 30m-30 0l30 -30' stroke='#FF0000' stroke-width='5')
+    symbol(id='urbanism')
+      rect(x='0' y='15' width='45' height='70' rx='10' ry='10' fill='#FFFFFF' stroke='#000000' stroke-width='3')
+      rect(x='55' y='15' width='45' height='70' rx='10' ry='10' fill='#FFFFFF' stroke='#000000' stroke-width='3')
+      path(d='M30 30L70 30L60 20M70 30L60 40' fill='none' stroke='#000000' stroke-width='5')
   g(v-for='component in components')
     svg(viewBox='0 0 100 100' :x='component.x' :y='component.y' :width='component.size' :height='component.size')
       use(:xlink:href='component.id')
@@ -104,6 +108,7 @@ const exceptions = {
   71: { symbol: 'greencard', coins: 1, victory: 1 },
   72: { symbol: 'coin', text: 3, victory: 1 },
   73: { symbol: 'redcard', coins: 1, victory: 1 },
+  6: { symbol: 'progress', victory: 3 },
 };
 
 export default {
@@ -201,8 +206,8 @@ export default {
             return [{
               id: `#${ex.symbol}`,
               x: 0,
-              y: 10,
-              size: 90,
+              y: 0,
+              size: 100,
               text: ex.text,
             }, {
               id: e.type === 'coins_fn' ? '#coin' : '#victory',
@@ -240,6 +245,76 @@ export default {
             y: 0,
             size: 100,
           }];
+        } else if (e.type === 'architecture') {
+          return [{
+            id: '#pyramid',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#ignoretwo',
+            x: 0,
+            y: 0,
+            size: 100,
+          }];
+        } else if (e.type === 'masonry') {
+          return [{
+            id: '#bluecard',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#ignoretwo',
+            x: 0,
+            y: 0,
+            size: 100,
+          }];
+        } else if (e.type === 'theology') {
+          return [{
+            id: '#pyramid',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#goagain',
+            x: 50,
+            y: 50,
+            size: 50,
+          }];
+        } else if (e.type === 'strategy') {
+          return [{
+            id: '#redcard',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#shield',
+            x: 50,
+            y: 50,
+            size: 50,
+          }];
+        } else if (e.type === 'urbanism') {
+          return [{
+            id: '#urbanism',
+            x: 0,
+            y: 0,
+            size: 100,
+          }, {
+            id: '#coin',
+            x: 50,
+            y: 50,
+            size: 50,
+            text: 4,
+          }];
+        } else if (e.type === 'economy') {
+          return [
+            { id: '#coin', x: 0, y: 15, size: 70, text: 'X' },
+            { id: '#wood', x: 40, y: 45, size: 20 },
+            { id: '#clay', x: 60, y: 45, size: 20 },
+            { id: '#brick', x: 80, y: 45, size: 20 },
+            { id: '#paper', x: 50, y: 60, size: 20 },
+            { id: '#glass', x: 70, y: 60, size: 20 },
+          ];
         }
       }
       return [];

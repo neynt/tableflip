@@ -21,10 +21,8 @@
         text(x='0' y='15' font-size='20px') {{ username(0) }}
         text(x='570' y='15' font-size='20px' text-anchor='end') {{ username(1) }}
       p
-        strong Progress:
-        span(v-for='p in state.unbuilt_progress') {{ rules.progress[p].name }} 
+        ProgressToken(v-for='p in state.unbuilt_progress' :key='p' :progress='p')
       p(v-if='state.wonders_draft')
-        strong Select a wonder:
         .tree
           .row
             Card(v-for='w in state.wonders_draft' :key='w' :wonder='w'
@@ -51,20 +49,14 @@
                      :amt='rules.wonder_coin_cost(state, state.player, w)')
       .progress-options(v-if='state.progress_choice')
         p
-          span(v-for='p in state.progress_choice')
-            a(@click='select_progress(p)') {{ rules.progress[p].name }}
+          ProgressToken(v-for='p in state.progress_choice' :key='p' :progress='p'
+                        @click.native='select_progress(p)')
     hr
-    .tree(v-if='false')
-      .row
-        Card(v-for='card in 73' :key='card' :card='card')
-    .tree(v-if='false')
-      .row
-        Card(v-for='wonder in 12' :key='wonder' :wonder='wonder')
     .city(v-for='player in [state.player, 1 - state.player]')
       h2 {{ username(player) }} 
         GameSymbol(size='20' symbol='coin' :amt='state.coins[player]')
       p(v-if='state.progress[player].length')
-        span(v-for='p in state.progress[player]') {{ rules.progress[p].name }}
+        ProgressToken(v-for='p in state.progress[player]' :key='p' :progress='p')
       .stack(v-for='stack in card_stacks(state.city[player])')
         .stack-card(v-for='card in stack')
           Card(:card='card' @click.native='destroy_resource(card)')
@@ -79,22 +71,25 @@
           .row
             Card(v-for='w in state.unbuilt_wonders[player]' :key='w' :wonder='w')
       hr
-    .log
-      p(v-for='e in state.log') {{ log_message(e) }}
     .discards
+      p
+        strong Discards
       .stack(v-for='stack in card_stacks(state.discard)')
         .stack-card(v-for='card in stack')
           Card(:card='card' @click.native='resurrect(card)')
+    .log
+      p(v-for='e in state.log') {{ log_message(e) }}
 </template>
 
 <script>
 import Card from './Card';
 import GameSymbol from './GameSymbol';
+import ProgressToken from './ProgressToken';
 import rules from './rules';
 
 export default {
   props: ['state', 'players', 'onaction'],
-  components: { Card, GameSymbol },
+  components: { Card, GameSymbol, ProgressToken },
   computed: {
     rules() {
       return rules;
@@ -263,5 +258,12 @@ hr {
 }
 .game-symbol {
   display: inline-block;
+}
+.log {
+  height: 300px;
+  overflow: scroll;
+  border: 1px solid black;
+  margin: 5px;
+  padding: 5px;
 }
 </style>

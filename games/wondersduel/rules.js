@@ -729,7 +729,8 @@ const PROGRESS = {
   6: {
     name: 'Mathematics',
     effects: [{ type: 'victory_fn',
-               fn: (state, player) => state.progress[player].length * 3 }],
+                hint: 6,
+                fn: (state, player) => state.progress[player].length * 3 }],
   },
   7: {
     name: 'Philosophy',
@@ -910,7 +911,7 @@ function winners(state) {
   if (science_count(state, 0) >= 6) {
     return [0];
   }
-  if (science_count(state, 0) >= 6) {
+  if (science_count(state, 1) >= 6) {
     return [1];
   }
   const victory = [victory_count(state, 0), victory_count(state, 1)];
@@ -1305,9 +1306,8 @@ function perform_action(original_state, player, action) {
         state.current = 1;
       } else if (state.military < 0) {
         state.current = 0;
-      } else {
-        state.current = 1 - state.current; // Same player goes again
       }
+      // Otherwise, same player goes again
     }
     advance_turn = false;
   }
