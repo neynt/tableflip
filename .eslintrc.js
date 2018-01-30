@@ -41,5 +41,6 @@ module.exports = {
     'indent': 0,
     'prefer-destructuring': 0,
     'function-paren-newline': 0,
+    'object-curly-newline': 0,
   }
 }
