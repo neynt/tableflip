@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 cp -r ../games .
 for r in `find games | grep rules`; do
   # JavaScript is awful
-  sed -i "" -e "s/export default/module.exports =/" $r
+  sed -i"" -e "s/export default/module.exports =/" $r
 done
 
 # Start engine
