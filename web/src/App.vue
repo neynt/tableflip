@@ -107,6 +107,7 @@ a:active {
 }
 .content {
   flex-grow: 1;
+  overflow: auto;
 }
 .panel {
   padding: 10px;
