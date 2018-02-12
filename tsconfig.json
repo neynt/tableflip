@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "strict": true,
+    "module": "es2015",
+    "lib": ["dom", "es7"],
+    "moduleResolution": "node"
+  }
+}
